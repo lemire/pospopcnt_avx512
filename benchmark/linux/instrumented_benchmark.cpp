@@ -380,9 +380,9 @@ int main(int argc, char **argv) {
 
   if (iterations == 0) {
     if (m * n < 1000000)
-      iterations = 100;
+      iterations = 10000;
     else
-      iterations = 10;
+      iterations = 1000;
   }
   printf("n = %zu m = %zu \n", n, m);
   printf("iterations = %zu \n", iterations);
@@ -401,19 +401,22 @@ int main(int argc, char **argv) {
   }
 
   measureoverhead(n * m, iterations, verbose);
-
-  for (size_t k = 0; k < PPOPCNT_NUMBER_METHODS; k++) {
-    printf("%-40s\t", pospopcnt_u16_method_names[k]);
-    fflush(NULL);
-    bool isok = benchmarkMany(n, m, iterations, pospopcnt_u16_methods[k],
-                              verbose, true);
-    if (isok == false) {
-      printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
-    }
-    if (verbose)
+  int maxtrial = 10;
+  for (int t = 0; t < maxtrial; t++) {
+    printf("\n== Trial %d out of %d \n", t + 1, maxtrial);
+    for (size_t k = 0; k < PPOPCNT_NUMBER_METHODS; k++) {
       printf("\n");
+      printf("%-40s\t", pospopcnt_u16_method_names[k]);
+      fflush(NULL);
+      bool isok = benchmarkMany(n, m, iterations, pospopcnt_u16_methods[k],
+                                verbose, true);
+      if (isok == false) {
+        printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
+      }
+      if (verbose)
+        printf("\n");
+    }
   }
-
   if (!verbose)
     printf("Try -v to get more details.\n");
 
