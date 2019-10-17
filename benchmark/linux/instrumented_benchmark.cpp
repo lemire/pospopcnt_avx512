@@ -25,15 +25,15 @@
 
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
-                                         uint32_t *flags);
+                                          uint32_t *flags);
 #define PPOPCNT_NUMBER_METHODS 2
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
   pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal,
 };
 
-static const char * const pospopcnt_u16_method_names[] = {
-    "pospopcnt_u16_scalar",
-    "pospopcnt_u16_avx512bw_harvey_seal"};
+static const char *const pospopcnt_u16_method_names[] = {
+  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal"
+};
 
 void print16(uint32_t *flags) {
   for (int k = 0; k < 16; k++)
@@ -119,8 +119,7 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
       vdata[k] = dis(gen); // random init.
     }
     uint32_t correctflags[16] = { 0 };
-    pospopcnt_u16_scalar(vdata, n,
-                               correctflags); // this is our gold standard
+    pospopcnt_u16_scalar(vdata, n, correctflags); // this is our gold standard
     uint32_t flags[16] = { 0 };
 
     unified.start();
@@ -233,9 +232,8 @@ bool benchmarkMany(uint32_t n, uint32_t m, uint32_t iterations,
     std::vector<std::vector<uint32_t> > correctflags(m,
                                                      std::vector<uint32_t>(16));
     for (size_t k = 0; k < m; k++) {
-      pospopcnt_u16_scalar(
-          vdata[k].data(), vdata[k].size(),
-          correctflags[k].data()); // this is our gold standard
+      pospopcnt_u16_scalar(vdata[k].data(), vdata[k].size(),
+                           correctflags[k].data()); // this is our gold standard
     }
     std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
 

@@ -89,5 +89,3 @@ bool operator!=(const AlignedSTLAllocator<T1, t> &, const T2 &) throw() {
 }
 // typical cache line
 typedef AlignedSTLAllocator<uint32_t, 64> cacheallocator;
-
-
