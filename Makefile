@@ -1,4 +1,4 @@
-OPTFLAGS  := -O3 -march=native
+OPTFLAGS  := -O2 -march=native
 CFLAGS     = -std=c99 $(OPTFLAGS) $(DEBUG_FLAGS)
 CPPFLAGS   = -std=c++0x $(OPTFLAGS) $(DEBUG_FLAGS)
 

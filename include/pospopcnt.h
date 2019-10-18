@@ -14,9 +14,23 @@ __attribute__((optimize("no-tree-vectorize")))
 static void pospopcnt_u16_scalar(const uint16_t *data, uint32_t len,
                                  uint32_t *flags) {
   for (int i = 0; i < len; ++i) {
-    for (int j = 0; j < 16; ++j) {
-      flags[j] += (((data[i]) >> j) & 1);
-    }
+      uint64_t w = data[i];
+      flags[0] += ((w >> 0) & 1);
+      flags[1] += ((w >> 1) & 1);
+      flags[2] += ((w >> 2) & 1);
+      flags[3] += ((w >> 3) & 1);
+      flags[4] += ((w >> 4) & 1);
+      flags[5] += ((w >> 5) & 1);
+      flags[6] += ((w >> 6) & 1);
+      flags[7] += ((w >> 7) & 1);
+      flags[8] += ((w >> 8) & 1);
+      flags[9] += ((w >> 9) & 1);
+      flags[10] += ((w >> 10) & 1);
+      flags[11] += ((w >> 11) & 1);
+      flags[12] += ((w >> 12) & 1);
+      flags[13] += ((w >> 13) & 1);
+      flags[14] += ((w >> 14) & 1);
+      flags[15] += ((w >> 15) & 1);
   }
 }
 

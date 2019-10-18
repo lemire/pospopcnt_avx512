@@ -186,15 +186,10 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
  *                   are either incorrect or the target function is not
  *supported.
  */
-bool benchmarkMany(uint32_t n, uint32_t m, uint32_t iterations,
+template <class C>
+bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
                    pospopcnt_u16_method_type fn, bool verbose, bool test) {
   std::vector<int> evts;
-#ifdef ALIGN
-  std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
-      m, std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> >(n));
-#else
-  std::vector<std::vector<uint16_t> > vdata(m, std::vector<uint16_t>(n));
-#endif
 #ifdef ALIGN
   for (auto &x : vdata) {
     assert(get_alignment(x.data()) == 64);
@@ -218,17 +213,8 @@ bool benchmarkMany(uint32_t n, uint32_t m, uint32_t iterations,
   std::vector<std::vector<unsigned long long> > allresults;
   results.resize(evts.size());
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, 0xFFFF);
-
   bool isok = true;
   for (uint32_t i = 0; i < iterations; i++) {
-    for (size_t k = 0; k < vdata.size(); k++) {
-      for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
-        vdata[k][k2] = dis(gen); // random init.
-      }
-    }
     std::vector<std::vector<uint32_t> > correctflags(m,
                                                      std::vector<uint32_t>(16));
     for (size_t k = 0; k < m; k++) {
@@ -401,14 +387,29 @@ int main(int argc, char **argv) {
   }
 
   measureoverhead(n * m, iterations, verbose);
-  int maxtrial = 10;
+  int maxtrial = 3;
+#ifdef ALIGN
+  std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
+      m, std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> >(n));
+#else
+  std::vector<std::vector<uint16_t> > vdata(m, std::vector<uint16_t>(n));
+#endif
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, 0xFFFF);
+  for (size_t k = 0; k < vdata.size(); k++) {
+      for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
+        vdata[k][k2] = dis(gen); // random init.
+      }
+  }
+ 
   for (int t = 0; t < maxtrial; t++) {
     printf("\n== Trial %d out of %d \n", t + 1, maxtrial);
     for (size_t k = 0; k < PPOPCNT_NUMBER_METHODS; k++) {
       printf("\n");
       printf("%-40s\t", pospopcnt_u16_method_names[k]);
       fflush(NULL);
-      bool isok = benchmarkMany(n, m, iterations, pospopcnt_u16_methods[k],
+      bool isok = benchmarkMany(vdata, n, m, iterations, pospopcnt_u16_methods[k],
                                 verbose, true);
       if (isok == false) {
         printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);

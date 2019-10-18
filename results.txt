@@ -1,0 +1,432 @@
+$ ./script.sh
+n = 1024 m = 1
+iterations = 10000
+array size: 2.000 kB
+nothing                                 	instructions per cycle 0.18, cycles per 16-bit word:  0.070, instructions per 16-bit word 0.013
+min:       72 cycles,       13 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     76.0 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.78, cycles per 16-bit word:  17.242, instructions per 16-bit word 65.104
+min:    17656 cycles,    66667 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  17890.5 cycles,  66667.0 instructions, 	     2.1 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.24, cycles per 16-bit word:  6.163, instructions per 16-bit word 19.954
+min:     6311 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6497.7 cycles,  20433.0 instructions, 	     7.1 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.78, cycles per 16-bit word:  17.243, instructions per 16-bit word 65.104
+min:    17657 cycles,    66667 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  17751.8 cycles,  66667.0 instructions, 	     2.2 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.24, cycles per 16-bit word:  6.166, instructions per 16-bit word 19.954
+min:     6314 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6478.3 cycles,  20433.0 instructions, 	     6.3 branch mis.,      0.5 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.78, cycles per 16-bit word:  17.244, instructions per 16-bit word 65.104
+min:    17658 cycles,    66667 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  17741.5 cycles,  66667.0 instructions, 	     2.1 branch mis.,      0.1 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.24, cycles per 16-bit word:  6.167, instructions per 16-bit word 19.954
+min:     6315 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6479.3 cycles,  20433.0 instructions, 	     6.2 branch mis.,      0.4 cache ref.,      0.0 cache mis.
+
+n = 2048 m = 1
+iterations = 10000
+array size: 4.000 kB
+nothing                                 	instructions per cycle 0.18, cycles per 16-bit word:  0.035, instructions per 16-bit word 0.006
+min:       72 cycles,       13 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     77.5 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.149, instructions per 16-bit word 65.052
+min:    35122 cycles,   133227 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  35259.1 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.5 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.23, cycles per 16-bit word:  3.125, instructions per 16-bit word 10.088
+min:     6399 cycles,    20661 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6577.6 cycles,  20661.0 instructions, 	     6.7 branch mis.,      0.8 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.151, instructions per 16-bit word 65.052
+min:    35126 cycles,   133227 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  35259.3 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.6 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.23, cycles per 16-bit word:  3.127, instructions per 16-bit word 10.088
+min:     6404 cycles,    20661 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6562.1 cycles,  20661.0 instructions, 	     6.4 branch mis.,      0.8 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.178, instructions per 16-bit word 65.052
+min:    35181 cycles,   133227 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  35289.8 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.7 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.23, cycles per 16-bit word:  3.126, instructions per 16-bit word 10.088
+min:     6402 cycles,    20661 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6575.3 cycles,  20661.0 instructions, 	     6.6 branch mis.,      1.0 cache ref.,      0.0 cache mis.
+
+n = 4096 m = 1
+iterations = 10000
+array size: 8.000 kB
+nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.011, instructions per 16-bit word 0.003
+min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     77.3 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.126, instructions per 16-bit word 65.026
+min:    70147 cycles,   266347 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  70313.8 cycles, 266347.0 instructions, 	     3.0 branch mis.,      1.1 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.21, cycles per 16-bit word:  1.605, instructions per 16-bit word 5.156
+min:     6575 cycles,    21117 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6701.4 cycles,  21117.0 instructions, 	     6.4 branch mis.,      2.7 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.135, instructions per 16-bit word 65.026
+min:    70187 cycles,   266347 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  70368.9 cycles, 266347.0 instructions, 	     3.0 branch mis.,      1.8 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.22, cycles per 16-bit word:  1.603, instructions per 16-bit word 5.156
+min:     6564 cycles,    21117 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6713.0 cycles,  21117.0 instructions, 	     6.4 branch mis.,      2.9 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.144, instructions per 16-bit word 65.026
+min:    70223 cycles,   266347 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg:  70405.3 cycles, 266347.0 instructions, 	     3.4 branch mis.,      2.2 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.23, cycles per 16-bit word:  1.595, instructions per 16-bit word 5.156
+min:     6535 cycles,    21117 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   6708.4 cycles,  21117.0 instructions, 	     6.5 branch mis.,      3.1 cache ref.,      0.0 cache mis.
+
+n = 8192 m = 1
+iterations = 10000
+array size: 16.000 kB
+nothing                                 	instructions per cycle 0.33, cycles per 16-bit word:  0.005, instructions per 16-bit word 0.002
+min:       39 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     67.9 cycles,     13.0 instructions, 	     0.9 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.159, instructions per 16-bit word 65.013
+min:   140569 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 140826.9 cycles, 532587.0 instructions, 	     3.0 branch mis.,      5.5 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.21, cycles per 16-bit word:  0.839, instructions per 16-bit word 2.689
+min:     6871 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7008.8 cycles,  22029.0 instructions, 	     6.2 branch mis.,     12.7 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.160, instructions per 16-bit word 65.013
+min:   140575 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 140863.2 cycles, 532587.0 instructions, 	     3.0 branch mis.,      4.1 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.22, cycles per 16-bit word:  0.835, instructions per 16-bit word 2.689
+min:     6840 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7011.7 cycles,  22029.0 instructions, 	     6.5 branch mis.,     11.2 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.151, instructions per 16-bit word 65.013
+min:   140505 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 140789.3 cycles, 532587.0 instructions, 	     3.0 branch mis.,      5.0 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.22, cycles per 16-bit word:  0.835, instructions per 16-bit word 2.689
+min:     6839 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7013.3 cycles,  22029.0 instructions, 	     6.5 branch mis.,     10.3 cache ref.,      0.0 cache mis.
+
+n = 16384 m = 1
+iterations = 10000
+array size: 32.000 kB
+nothing                                 	instructions per cycle 0.20, cycles per 16-bit word:  0.004, instructions per 16-bit word 0.001
+min:       64 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     69.0 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.111, instructions per 16-bit word 65.007
+min:   280351 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 283580.1 cycles, 1065067.1 instructions, 	     3.0 branch mis.,      9.6 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.13, cycles per 16-bit word:  0.465, instructions per 16-bit word 1.456
+min:     7613 cycles,    23853 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7770.9 cycles,  23853.0 instructions, 	     6.7 branch mis.,     24.8 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.107, instructions per 16-bit word 65.007
+min:   280284 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 283051.5 cycles, 1065067.1 instructions, 	     3.0 branch mis.,     12.6 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.14, cycles per 16-bit word:  0.464, instructions per 16-bit word 1.456
+min:     7600 cycles,    23853 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7694.4 cycles,  23853.0 instructions, 	     6.6 branch mis.,     15.9 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.125, instructions per 16-bit word 65.007
+min:   280577 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
+avg: 283589.7 cycles, 1065067.1 instructions, 	     3.0 branch mis.,     18.0 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.13, cycles per 16-bit word:  0.464, instructions per 16-bit word 1.456
+min:     7610 cycles,    23853 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
+avg:   7702.4 cycles,  23853.0 instructions, 	     7.1 branch mis.,     12.8 cache ref.,      0.0 cache mis.
+
+n = 32768 m = 1
+iterations = 10000
+array size: 64.000 kB
+nothing                                 	instructions per cycle 0.33, cycles per 16-bit word:  0.001, instructions per 16-bit word 0.000
+min:       39 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     75.7 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.003
+min:   560116 cycles,  2130027 instructions, 	       2 branch mis.,       54 cache ref.,        0 cache mis.
+avg: 564127.2 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    129.5 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.06, cycles per 16-bit word:  0.275, instructions per 16-bit word 0.839
+min:     9000 cycles,    27501 instructions, 	       6 branch mis.,       80 cache ref.,        0 cache mis.
+avg:   9208.2 cycles,  27501.0 instructions, 	     8.4 branch mis.,    157.6 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.003
+min:   560109 cycles,  2130027 instructions, 	       2 branch mis.,       35 cache ref.,        0 cache mis.
+avg: 563994.3 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    100.1 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.07, cycles per 16-bit word:  0.273, instructions per 16-bit word 0.839
+min:     8951 cycles,    27501 instructions, 	       6 branch mis.,       35 cache ref.,        0 cache mis.
+avg:   9167.6 cycles,  27501.0 instructions, 	     8.2 branch mis.,    108.5 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.094, instructions per 16-bit word 65.003
+min:   560124 cycles,  2130027 instructions, 	       2 branch mis.,       32 cache ref.,        0 cache mis.
+avg: 564275.3 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    103.7 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 3.07, cycles per 16-bit word:  0.273, instructions per 16-bit word 0.839
+min:     8944 cycles,    27501 instructions, 	       6 branch mis.,       28 cache ref.,        0 cache mis.
+avg:   9142.0 cycles,  27501.0 instructions, 	     8.2 branch mis.,     94.0 cache ref.,      0.0 cache mis.
+
+n = 65536 m = 1
+iterations = 10000
+array size: 128.000 kB
+nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.001, instructions per 16-bit word 0.000
+min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     76.7 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.096, instructions per 16-bit word 65.002
+min:  1120377 cycles,  4259947 instructions, 	       2 branch mis.,      403 cache ref.,        0 cache mis.
+avg: 1133104.5 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    593.1 cache ref.,      0.5 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 2.96, cycles per 16-bit word:  0.179, instructions per 16-bit word 0.531
+min:    11762 cycles,    34797 instructions, 	       6 branch mis.,      344 cache ref.,        0 cache mis.
+avg:  12120.9 cycles,  34797.0 instructions, 	     7.6 branch mis.,    491.5 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.095, instructions per 16-bit word 65.002
+min:  1120325 cycles,  4259947 instructions, 	       2 branch mis.,      386 cache ref.,        0 cache mis.
+avg: 1132807.1 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    559.9 cache ref.,      0.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 2.93, cycles per 16-bit word:  0.181, instructions per 16-bit word 0.531
+min:    11869 cycles,    34797 instructions, 	       6 branch mis.,      386 cache ref.,        0 cache mis.
+avg:  12272.3 cycles,  34797.0 instructions, 	     7.7 branch mis.,    546.3 cache ref.,      0.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.002
+min:  1120225 cycles,  4259947 instructions, 	       2 branch mis.,      482 cache ref.,        0 cache mis.
+avg: 1132752.5 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    663.0 cache ref.,      0.3 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 2.95, cycles per 16-bit word:  0.180, instructions per 16-bit word 0.531
+min:    11777 cycles,    34797 instructions, 	       7 branch mis.,      341 cache ref.,        0 cache mis.
+avg:  12160.1 cycles,  34797.0 instructions, 	     7.9 branch mis.,    493.6 cache ref.,      0.0 cache mis.
+
+n = 131072 m = 1
+iterations = 10000
+array size: 256.000 kB
+nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000
+min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     77.2 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.78, cycles per 16-bit word:  17.177, instructions per 16-bit word 65.001
+min:  2251399 cycles,  8519787 instructions, 	       2 branch mis.,     3791 cache ref.,        0 cache mis.
+avg: 2274423.0 cycles, 8519787.7 instructions, 	     3.0 branch mis.,   4030.5 cache ref.,      1.7 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 1.67, cycles per 16-bit word:  0.226, instructions per 16-bit word 0.377
+min:    29591 cycles,    49389 instructions, 	       7 branch mis.,     3497 cache ref.,        0 cache mis.
+avg:  52232.4 cycles,  49389.0 instructions, 	     8.3 branch mis.,   3782.8 cache ref.,      0.0 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.098, instructions per 16-bit word 65.001
+min:  2241081 cycles,  8519787 instructions, 	       1 branch mis.,     3785 cache ref.,        0 cache mis.
+avg: 2269222.0 cycles, 8519787.7 instructions, 	     3.0 branch mis.,   4015.0 cache ref.,      0.5 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 2.34, cycles per 16-bit word:  0.161, instructions per 16-bit word 0.377
+min:    21111 cycles,    49389 instructions, 	       7 branch mis.,     3474 cache ref.,        0 cache mis.
+avg:  52228.8 cycles,  49389.0 instructions, 	     8.7 branch mis.,   3785.7 cache ref.,      0.4 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.80, cycles per 16-bit word:  17.095, instructions per 16-bit word 65.001
+min:  2240684 cycles,  8519787 instructions, 	       2 branch mis.,     3811 cache ref.,        0 cache mis.
+avg: 2270032.1 cycles, 8519787.7 instructions, 	     3.0 branch mis.,   4077.1 cache ref.,      1.4 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 1.62, cycles per 16-bit word:  0.232, instructions per 16-bit word 0.377
+min:    30432 cycles,    49389 instructions, 	       7 branch mis.,     3524 cache ref.,        0 cache mis.
+avg:  52258.6 cycles,  49389.0 instructions, 	     9.2 branch mis.,   3836.4 cache ref.,      0.1 cache mis.
+
+n = 262144 m = 1
+iterations = 10000
+array size: 512.000 kB
+nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000
+min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     75.5 cycles,     13.0 instructions, 	     0.9 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.166, instructions per 16-bit word 65.000
+min:  4499962 cycles, 17039468 instructions, 	       2 branch mis.,    10188 cache ref.,        0 cache mis.
+avg: 4544453.2 cycles, 17039468.4 instructions, 	     3.0 branch mis.,  10725.4 cache ref.,      8.7 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 1.60, cycles per 16-bit word:  0.187, instructions per 16-bit word 0.300
+min:    49048 cycles,    78573 instructions, 	       7 branch mis.,     9968 cache ref.,        0 cache mis.
+avg:  76477.4 cycles,  78573.0 instructions, 	    18.5 branch mis.,  10305.9 cache ref.,      3.2 cache mis.
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.138, instructions per 16-bit word 65.000
+min:  4492646 cycles, 17039468 instructions, 	       2 branch mis.,    10230 cache ref.,        0 cache mis.
+avg: 4545079.5 cycles, 17039468.4 instructions, 	     3.1 branch mis.,  10753.8 cache ref.,     12.0 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 1.64, cycles per 16-bit word:  0.183, instructions per 16-bit word 0.300
+min:    47849 cycles,    78573 instructions, 	       7 branch mis.,    10014 cache ref.,        0 cache mis.
+avg:  76666.7 cycles,  78573.0 instructions, 	    21.3 branch mis.,  10314.4 cache ref.,      1.0 cache mis.
+
+
+== Trial 3 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 64
+instructions per cycle 3.79, cycles per 16-bit word:  17.137, instructions per 16-bit word 65.000
+min:  4492489 cycles, 17039468 instructions, 	       2 branch mis.,     9269 cache ref.,        0 cache mis.
+avg: 4541424.1 cycles, 17039468.4 instructions, 	    11.6 branch mis.,  10747.8 cache ref.,     10.1 cache mis.
+
+
+pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
+instructions per cycle 1.57, cycles per 16-bit word:  0.191, instructions per 16-bit word 0.300
+min:    49950 cycles,    78573 instructions, 	       7 branch mis.,     9989 cache ref.,        0 cache mis.
+avg:  76342.8 cycles,  78573.0 instructions, 	    14.1 branch mis.,  10327.3 cache ref.,      0.1 cache mis.
