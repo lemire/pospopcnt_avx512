@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
+#include <chrono>
 #include <libgen.h>
 #include <random>
 #include <string>
@@ -26,13 +28,13 @@
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
                                           uint32_t *flags);
-#define PPOPCNT_NUMBER_METHODS 2
+#define PPOPCNT_NUMBER_METHODS 4
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
-  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal,
+  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B
 };
 
 static const char *const pospopcnt_u16_method_names[] = {
-  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal"
+  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B"
 };
 
 void print16(uint32_t *flags) {
@@ -211,6 +213,8 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
   std::vector<unsigned long long> results; // tmp buffer
   std::vector<std::vector<unsigned long long> > allresults;
+  std::vector<double> timings;
+  std::vector<double> freqs;
   results.resize(evts.size());
 
   bool isok = true;
@@ -222,12 +226,13 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
                            correctflags[k].data()); // this is our gold standard
     }
     std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
-
+    auto start = std::chrono::steady_clock::now();
     unified.start();
     for (size_t k = 0; k < m; k++) {
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
     unified.end(results);
+    auto end = std::chrono::steady_clock::now();
 
     uint64_t tot_obs = 0;
     for (size_t km = 0; km < m; ++km)
@@ -252,11 +257,20 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
         }
       }
     }
+    std::chrono::duration<double> secs = end - start;
+    double time_in_s = secs.count();
+    timings.push_back(time_in_s);
+    freqs.push_back(results[0]/(1000000000*time_in_s));
     allresults.push_back(results);
   }
 
   std::vector<unsigned long long> mins = compute_mins(allresults);
   std::vector<double> avg = compute_averages(allresults);
+  double min_timing = *min_element(timings.begin(), timings.end());
+  double min_freq = *min_element(freqs.begin(), freqs.end());
+  double max_freq = *max_element(freqs.begin(), freqs.end());
+  
+  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
 
   if (verbose) {
     printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
@@ -270,10 +284,12 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
     printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
            "cache ref., %8.1f cache mis.\n",
            avg[0], avg[1], avg[2], avg[3], avg[4]);
+    printf(" %4.3f GB/s \n", speedinGBs);
+    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
   } else {
     printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f \n",
-        double(mins[0]) / (n * m), double(mins[5]) / (n * m));
+        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
+        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
   }
 
   return isok;
@@ -326,7 +342,7 @@ static void print_usage(char *command) {
 }
 
 int main(int argc, char **argv) {
-  size_t n = 100000;
+  size_t n = 10000000;
   size_t m = 1;
   size_t iterations = 0;
   bool verbose = false;
@@ -368,7 +384,7 @@ int main(int argc, char **argv) {
     if (m * n < 1000000)
       iterations = 10000;
     else
-      iterations = 1000;
+      iterations = 100;
   }
   printf("n = %zu m = %zu \n", n, m);
   printf("iterations = %zu \n", iterations);

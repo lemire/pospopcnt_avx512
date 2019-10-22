@@ -1,336 +1,324 @@
-$ ./script.sh
-n = 1024 m = 1
-iterations = 10000
-array size: 2.000 kB
-nothing                                 	instructions per cycle 0.18, cycles per 16-bit word:  0.070, instructions per 16-bit word 0.013
-min:       72 cycles,       13 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     76.0 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+$ ./script.sh 
+n = 8388608 m = 1 
+iterations = 100 
+array size: 16.000 MB
+nothing                                         instructions per cycle 0.20, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000 
+min:       65 cycles,       13 instructions,           1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     75.6 cycles,     13.0 instructions,         1.0 branch mis.,      0.1 cache ref.,      0.1 cache mis.
+
+== Trial 1 out of 3 
+
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.321, instructions per 16-bit word 65.000 
+min: 145300780 cycles, 545259670 instructions,         3 branch mis.,   342794 cache ref.,   227818 cache mis.
+avg: 145437051.2 cycles, 545259670.8 instructions,           8.1 branch mis., 343725.7 cache ref., 240702.4 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.114 GHz to 3.183 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.44, cycles per 16-bit word:  0.510, instructions per 16-bit word 0.226 
+min:  4275703 cycles,  1896353 instructions,          89 branch mis.,   456562 cache ref.,   210984 cache mis.
+avg: 4435881.5 cycles, 1896353.4 instructions,     114.7 branch mis., 462022.3 cache ref., 224756.1 cache mis.
+ 12.242 GB/s 
+estimated clock in range 2.995 GHz to 3.130 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.59, cycles per 16-bit word:  0.553, instructions per 16-bit word 0.323 
+min:  4636354 cycles,  2713472 instructions,          73 branch mis.,   405240 cache ref.,   212428 cache mis.
+avg: 4740082.5 cycles, 2713472.5 instructions,      99.2 branch mis., 410034.9 cache ref., 221150.8 cache mis.
+ 11.334 GB/s 
+estimated clock in range 2.960 GHz to 3.138 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.80, cycles per 16-bit word:  0.650, instructions per 16-bit word 0.518 
+min:  5455458 cycles,  4348093 instructions,          93 branch mis.,   369665 cache ref.,   214089 cache mis.
+avg: 5685385.1 cycles, 4348093.8 instructions,     100.7 branch mis., 372731.5 cache ref., 227855.8 cache mis.
+ 9.658 GB/s 
+estimated clock in range 3.016 GHz to 3.145 GHz
+
+
+== Trial 2 out of 3 
+
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.319, instructions per 16-bit word 65.000 
+min: 145278186 cycles, 545259670 instructions,         3 branch mis.,   342538 cache ref.,   228564 cache mis.
+avg: 145437966.3 cycles, 545259671.1 instructions,           9.4 branch mis., 343842.9 cache ref., 240921.6 cache mis.
+ 0.368 GB/s 
+estimated clock in range 3.103 GHz to 3.186 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.44, cycles per 16-bit word:  0.510, instructions per 16-bit word 0.226 
+min:  4280028 cycles,  1896353 instructions,          93 branch mis.,   456611 cache ref.,   212101 cache mis.
+avg: 4427292.3 cycles, 1896353.4 instructions,     118.8 branch mis., 461757.7 cache ref., 223975.2 cache mis.
+ 12.248 GB/s 
+estimated clock in range 2.954 GHz to 3.125 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.58, cycles per 16-bit word:  0.554, instructions per 16-bit word 0.323 
+min:  4646521 cycles,  2713472 instructions,          69 branch mis.,   406160 cache ref.,   213902 cache mis.
+avg: 4782781.6 cycles, 2713472.5 instructions,      99.2 branch mis., 412982.4 cache ref., 226466.0 cache mis.
+ 11.284 GB/s 
+estimated clock in range 2.757 GHz to 3.134 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.79, cycles per 16-bit word:  0.653, instructions per 16-bit word 0.518 
+min:  5476340 cycles,  4348093 instructions,          89 branch mis.,   369385 cache ref.,   215783 cache mis.
+avg: 5675215.1 cycles, 4348093.8 instructions,      99.7 branch mis., 372441.2 cache ref., 227343.4 cache mis.
+ 9.616 GB/s 
+estimated clock in range 2.982 GHz to 3.141 GHz
+
+
+== Trial 3 out of 3 
+
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.323, instructions per 16-bit word 65.000 
+min: 145315376 cycles, 545259670 instructions,         3 branch mis.,   342409 cache ref.,   225642 cache mis.
+avg: 145436719.9 cycles, 545259670.8 instructions,           9.5 branch mis., 343947.5 cache ref., 238966.5 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.106 GHz to 3.183 GHz
 
-== Trial 1 out of 3
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.44, cycles per 16-bit word:  0.508, instructions per 16-bit word 0.226 
+min:  4264660 cycles,  1896353 instructions,          89 branch mis.,   456718 cache ref.,   211363 cache mis.
+avg: 4409605.7 cycles, 1896353.5 instructions,     110.8 branch mis., 461534.5 cache ref., 222450.5 cache mis.
+ 12.274 GB/s 
+estimated clock in range 2.983 GHz to 3.126 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.58, cycles per 16-bit word:  0.555, instructions per 16-bit word 0.323 
+min:  4654504 cycles,  2713472 instructions,          46 branch mis.,   405671 cache ref.,   213485 cache mis.
+avg: 4764287.9 cycles, 2713472.5 instructions,      96.6 branch mis., 411845.7 cache ref., 224323.1 cache mis.
+ 11.267 GB/s 
+estimated clock in range 2.857 GHz to 3.134 GHz
+
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.78, cycles per 16-bit word:  17.242, instructions per 16-bit word 65.104
-min:    17656 cycles,    66667 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  17890.5 cycles,  66667.0 instructions, 	     2.1 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.80, cycles per 16-bit word:  0.649, instructions per 16-bit word 0.518 
+min:  5441872 cycles,  4348093 instructions,          88 branch mis.,   369764 cache ref.,   217127 cache mis.
+avg: 5697221.4 cycles, 4348093.8 instructions,     100.9 branch mis., 372666.7 cache ref., 228013.5 cache mis.
+ 9.679 GB/s 
+estimated clock in range 2.980 GHz to 3.139 GHz
 
+n = 16777216 m = 1 
+iterations = 100 
+array size: 32.000 MB
+nothing                                         instructions per cycle 0.20, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000 
+min:       64 cycles,       13 instructions,           1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     71.7 cycles,     13.0 instructions,         1.0 branch mis.,      0.3 cache ref.,      0.0 cache mis.
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.24, cycles per 16-bit word:  6.163, instructions per 16-bit word 19.954
-min:     6311 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6497.7 cycles,  20433.0 instructions, 	     7.1 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+== Trial 1 out of 3 
 
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.327, instructions per 16-bit word 65.000 
+min: 290698808 cycles, 1090519236 instructions,                5 branch mis.,   686676 cache ref.,   500793 cache mis.
+avg: 290938868.1 cycles, 1090519236.9 instructions,         15.7 branch mis., 688354.2 cache ref., 510683.9 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.129 GHz to 3.183 GHz
 
-== Trial 2 out of 3
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.50, cycles per 16-bit word:  0.451, instructions per 16-bit word 0.225 
+min:  7570267 cycles,  3778030 instructions,         172 branch mis.,   911913 cache ref.,   466824 cache mis.
+avg: 8082887.5 cycles, 3778030.8 instructions,     208.4 branch mis., 918840.2 cache ref., 478513.7 cache mis.
+ 13.966 GB/s 
+estimated clock in range 2.991 GHz to 3.156 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.67, cycles per 16-bit word:  0.480, instructions per 16-bit word 0.323 
+min:  8059538 cycles,  5412301 instructions,         117 branch mis.,   832885 cache ref.,   472215 cache mis.
+avg: 8571650.0 cycles, 5412301.8 instructions,     194.3 branch mis., 844191.3 cache ref., 483240.1 cache mis.
+ 13.091 GB/s 
+estimated clock in range 3.005 GHz to 3.155 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.92, cycles per 16-bit word:  0.565, instructions per 16-bit word 0.518 
+min:  9471909 cycles,  8685323 instructions,         179 branch mis.,   750308 cache ref.,   476978 cache mis.
+avg: 9987220.5 cycles, 8685323.0 instructions,     193.4 branch mis., 753474.4 cache ref., 491033.0 cache mis.
+ 11.186 GB/s 
+estimated clock in range 2.987 GHz to 3.161 GHz
+
+
+== Trial 2 out of 3 
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.78, cycles per 16-bit word:  17.243, instructions per 16-bit word 65.104
-min:    17657 cycles,    66667 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  17751.8 cycles,  66667.0 instructions, 	     2.2 branch mis.,      0.2 cache ref.,      0.0 cache mis.
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.329, instructions per 16-bit word 65.000 
+min: 290733066 cycles, 1090519236 instructions,                4 branch mis.,   686103 cache ref.,   499278 cache mis.
+avg: 290946935.9 cycles, 1090519236.8 instructions,         13.0 branch mis., 687911.4 cache ref., 509925.4 cache mis.
+ 0.368 GB/s 
+estimated clock in range 3.127 GHz to 3.185 GHz
 
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.24, cycles per 16-bit word:  6.166, instructions per 16-bit word 19.954
-min:     6314 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6478.3 cycles,  20433.0 instructions, 	     6.3 branch mis.,      0.5 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.50, cycles per 16-bit word:  0.453, instructions per 16-bit word 0.225 
+min:  7600302 cycles,  3778030 instructions,         180 branch mis.,   912316 cache ref.,   465633 cache mis.
+avg: 8088476.5 cycles, 3778030.7 instructions,     202.9 branch mis., 918700.2 cache ref., 477476.4 cache mis.
+ 13.892 GB/s 
+estimated clock in range 3.018 GHz to 3.155 GHz
+
 
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.72, cycles per 16-bit word:  0.449, instructions per 16-bit word 0.323 
+min:  7531365 cycles,  5412301 instructions,         155 branch mis.,   827062 cache ref.,   467937 cache mis.
+avg: 8587747.1 cycles, 5412301.8 instructions,     194.7 branch mis., 842218.7 cache ref., 480786.8 cache mis.
+ 13.457 GB/s 
+estimated clock in range 3.021 GHz to 3.157 GHz
+
 
-== Trial 3 out of 3
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.92, cycles per 16-bit word:  0.561, instructions per 16-bit word 0.518 
+min:  9403750 cycles,  8685323 instructions,         177 branch mis.,   749685 cache ref.,   476669 cache mis.
+avg: 10080203.3 cycles, 8685323.0 instructions,            190.7 branch mis., 752866.7 cache ref., 489090.3 cache mis.
+ 11.265 GB/s 
+estimated clock in range 3.103 GHz to 3.160 GHz
+
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.78, cycles per 16-bit word:  17.244, instructions per 16-bit word 65.104
-min:    17658 cycles,    66667 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  17741.5 cycles,  66667.0 instructions, 	     2.1 branch mis.,      0.1 cache ref.,      0.0 cache mis.
+== Trial 3 out of 3 
 
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.329, instructions per 16-bit word 65.000 
+min: 290740327 cycles, 1090519236 instructions,                3 branch mis.,   684978 cache ref.,   496434 cache mis.
+avg: 290947846.2 cycles, 1090519236.7 instructions,         12.6 branch mis., 687683.9 cache ref., 509124.1 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.142 GHz to 3.184 GHz
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.24, cycles per 16-bit word:  6.167, instructions per 16-bit word 19.954
-min:     6315 cycles,    20433 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6479.3 cycles,  20433.0 instructions, 	     6.2 branch mis.,      0.4 cache ref.,      0.0 cache mis.
 
-n = 2048 m = 1
-iterations = 10000
-array size: 4.000 kB
-nothing                                 	instructions per cycle 0.18, cycles per 16-bit word:  0.035, instructions per 16-bit word 0.006
-min:       72 cycles,       13 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     77.5 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.50, cycles per 16-bit word:  0.452, instructions per 16-bit word 0.225 
+min:  7577793 cycles,  3778030 instructions,         175 branch mis.,   911261 cache ref.,   466200 cache mis.
+avg: 8120387.0 cycles, 3778030.7 instructions,     215.3 branch mis., 919429.1 cache ref., 480036.4 cache mis.
+ 13.928 GB/s 
+estimated clock in range 3.003 GHz to 3.153 GHz
 
-== Trial 1 out of 3
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.149, instructions per 16-bit word 65.052
-min:    35122 cycles,   133227 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  35259.1 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.5 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.67, cycles per 16-bit word:  0.481, instructions per 16-bit word 0.323 
+min:  8068715 cycles,  5412301 instructions,         160 branch mis.,   835367 cache ref.,   469650 cache mis.
+avg: 8566613.3 cycles, 5412301.9 instructions,     197.6 branch mis., 843327.4 cache ref., 482458.9 cache mis.
+ 13.104 GB/s 
+estimated clock in range 3.062 GHz to 3.156 GHz
 
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.23, cycles per 16-bit word:  3.125, instructions per 16-bit word 10.088
-min:     6399 cycles,    20661 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6577.6 cycles,  20661.0 instructions, 	     6.7 branch mis.,      0.8 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 0.92, cycles per 16-bit word:  0.565, instructions per 16-bit word 0.518 
+min:  9487169 cycles,  8685323 instructions,         175 branch mis.,   750225 cache ref.,   477681 cache mis.
+avg: 10032864.4 cycles, 8685323.1 instructions,            192.5 branch mis., 753271.8 cache ref., 490210.8 cache mis.
+ 11.161 GB/s 
+estimated clock in range 2.993 GHz to 3.159 GHz
 
+n = 33554432 m = 1 
+iterations = 100 
+array size: 64.000 MB
+nothing                                         instructions per cycle 0.20, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000 
+min:       65 cycles,       13 instructions,           1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     70.7 cycles,     13.0 instructions,         1.0 branch mis.,      0.4 cache ref.,      0.0 cache mis.
 
-== Trial 2 out of 3
+== Trial 1 out of 3 
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.151, instructions per 16-bit word 65.052
-min:    35126 cycles,   133227 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  35259.3 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.6 cache ref.,      0.0 cache mis.
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.329, instructions per 16-bit word 65.000 
+min: 581477149 cycles, 2181038367 instructions,                3 branch mis.,  1371669 cache ref.,  1033291 cache mis.
+avg: 581933574.2 cycles, 2181038369.1 instructions,         19.5 branch mis., 1375421.4 cache ref., 1042079.4 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.142 GHz to 3.181 GHz
 
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.23, cycles per 16-bit word:  3.127, instructions per 16-bit word 10.088
-min:     6404 cycles,    20661 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6562.1 cycles,  20661.0 instructions, 	     6.4 branch mis.,      0.8 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.55, cycles per 16-bit word:  0.407, instructions per 16-bit word 0.225 
+min: 13653935 cycles,  7541384 instructions,         134 branch mis.,  1816669 cache ref.,   969367 cache mis.
+avg: 14379394.1 cycles, 7541384.5 instructions,            348.5 branch mis., 1825994.9 cache ref., 980377.7 cache mis.
+ 15.407 GB/s 
+estimated clock in range 3.037 GHz to 3.167 GHz
 
 
-== Trial 3 out of 3
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.73, cycles per 16-bit word:  0.439, instructions per 16-bit word 0.322 
+min: 14742562 cycles, 10809959 instructions,         138 branch mis.,  1695219 cache ref.,   976523 cache mis.
+avg: 15366151.7 cycles, 10809960.0 instructions,           358.6 branch mis., 1702361.3 cache ref., 988884.0 cache mis.
+ 14.399 GB/s 
+estimated clock in range 3.069 GHz to 3.167 GHz
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.178, instructions per 16-bit word 65.052
-min:    35181 cycles,   133227 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  35289.8 cycles, 133227.0 instructions, 	     3.0 branch mis.,      0.7 cache ref.,      0.0 cache mis.
 
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 1.00, cycles per 16-bit word:  0.517, instructions per 16-bit word 0.517 
+min: 17349696 cycles, 17359781 instructions,         340 branch mis.,  1507483 cache ref.,   994974 cache mis.
+avg: 17986706.1 cycles, 17359781.6 instructions,           366.0 branch mis., 1512351.4 cache ref., 1007333.2 cache mis.
+ 12.251 GB/s 
+estimated clock in range 3.099 GHz to 3.171 GHz
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.23, cycles per 16-bit word:  3.126, instructions per 16-bit word 10.088
-min:     6402 cycles,    20661 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6575.3 cycles,  20661.0 instructions, 	     6.6 branch mis.,      1.0 cache ref.,      0.0 cache mis.
 
-n = 4096 m = 1
-iterations = 10000
-array size: 8.000 kB
-nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.011, instructions per 16-bit word 0.003
-min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     77.3 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
+== Trial 2 out of 3 
 
-== Trial 1 out of 3
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.331, instructions per 16-bit word 65.000 
+min: 581521999 cycles, 2181038367 instructions,                3 branch mis.,  1372754 cache ref.,  1031789 cache mis.
+avg: 581909568.5 cycles, 2181038370.3 instructions,          5.0 branch mis., 1376427.2 cache ref., 1040231.2 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.154 GHz to 3.182 GHz
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.126, instructions per 16-bit word 65.026
-min:    70147 cycles,   266347 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  70313.8 cycles, 266347.0 instructions, 	     3.0 branch mis.,      1.1 cache ref.,      0.0 cache mis.
 
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.55, cycles per 16-bit word:  0.407, instructions per 16-bit word 0.225 
+min: 13656404 cycles,  7541384 instructions,         339 branch mis.,  1811137 cache ref.,   973011 cache mis.
+avg: 14385482.8 cycles, 7541384.5 instructions,            382.7 branch mis., 1825741.2 cache ref., 982132.8 cache mis.
+ 15.450 GB/s 
+estimated clock in range 2.982 GHz to 3.167 GHz
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.21, cycles per 16-bit word:  1.605, instructions per 16-bit word 5.156
-min:     6575 cycles,    21117 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6701.4 cycles,  21117.0 instructions, 	     6.4 branch mis.,      2.7 cache ref.,      0.0 cache mis.
 
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.73, cycles per 16-bit word:  0.439, instructions per 16-bit word 0.322 
+min: 14740976 cycles, 10809959 instructions,         135 branch mis.,  1690517 cache ref.,   982609 cache mis.
+avg: 15344071.8 cycles, 10809959.9 instructions,           354.4 branch mis., 1703487.1 cache ref., 990562.1 cache mis.
+ 14.362 GB/s 
+estimated clock in range 3.025 GHz to 3.167 GHz
 
-== Trial 2 out of 3
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.135, instructions per 16-bit word 65.026
-min:    70187 cycles,   266347 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  70368.9 cycles, 266347.0 instructions, 	     3.0 branch mis.,      1.8 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 1.00, cycles per 16-bit word:  0.518, instructions per 16-bit word 0.517 
+min: 17396176 cycles, 17359781 instructions,         341 branch mis.,  1508967 cache ref.,   997769 cache mis.
+avg: 17973735.3 cycles, 17359781.4 instructions,           367.4 branch mis., 1513286.9 cache ref., 1008995.7 cache mis.
+ 12.215 GB/s 
+estimated clock in range 3.034 GHz to 3.170 GHz
 
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.22, cycles per 16-bit word:  1.603, instructions per 16-bit word 5.156
-min:     6564 cycles,    21117 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6713.0 cycles,  21117.0 instructions, 	     6.4 branch mis.,      2.9 cache ref.,      0.0 cache mis.
+== Trial 3 out of 3 
 
+pospopcnt_u16_scalar                            alignments: 16 
+instructions per cycle 3.75, cycles per 16-bit word:  17.331, instructions per 16-bit word 65.000 
+min: 581529449 cycles, 2181038367 instructions,                3 branch mis.,  1374422 cache ref.,  1033591 cache mis.
+avg: 581922860.8 cycles, 2181038371.0 instructions,          4.9 branch mis., 1377283.2 cache ref., 1041910.3 cache mis.
+ 0.367 GB/s 
+estimated clock in range 3.140 GHz to 3.181 GHz
 
-== Trial 3 out of 3
 
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.144, instructions per 16-bit word 65.026
-min:    70223 cycles,   266347 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg:  70405.3 cycles, 266347.0 instructions, 	     3.4 branch mis.,      2.2 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_1KB          alignments: 16 
+instructions per cycle 0.56, cycles per 16-bit word:  0.404, instructions per 16-bit word 0.225 
+min: 13543586 cycles,  7541384 instructions,         352 branch mis.,  1817110 cache ref.,   969972 cache mis.
+avg: 14392309.3 cycles, 7541384.4 instructions,            390.9 branch mis., 1825960.7 cache ref., 980936.2 cache mis.
+ 15.453 GB/s 
+estimated clock in range 3.000 GHz to 3.165 GHz
 
 
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.23, cycles per 16-bit word:  1.595, instructions per 16-bit word 5.156
-min:     6535 cycles,    21117 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   6708.4 cycles,  21117.0 instructions, 	     6.5 branch mis.,      3.1 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_512B         alignments: 16 
+instructions per cycle 0.73, cycles per 16-bit word:  0.441, instructions per 16-bit word 0.322 
+min: 14789211 cycles, 10809959 instructions,         195 branch mis.,  1695835 cache ref.,   977227 cache mis.
+avg: 15385457.1 cycles, 10809959.7 instructions,           352.7 branch mis., 1702342.3 cache ref., 988574.6 cache mis.
+ 14.313 GB/s 
+estimated clock in range 3.023 GHz to 3.166 GHz
 
-n = 8192 m = 1
-iterations = 10000
-array size: 16.000 kB
-nothing                                 	instructions per cycle 0.33, cycles per 16-bit word:  0.005, instructions per 16-bit word 0.002
-min:       39 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     67.9 cycles,     13.0 instructions, 	     0.9 branch mis.,      0.0 cache ref.,      0.0 cache mis.
 
-== Trial 1 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.159, instructions per 16-bit word 65.013
-min:   140569 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 140826.9 cycles, 532587.0 instructions, 	     3.0 branch mis.,      5.5 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.21, cycles per 16-bit word:  0.839, instructions per 16-bit word 2.689
-min:     6871 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7008.8 cycles,  22029.0 instructions, 	     6.2 branch mis.,     12.7 cache ref.,      0.0 cache mis.
-
-
-== Trial 2 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.160, instructions per 16-bit word 65.013
-min:   140575 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 140863.2 cycles, 532587.0 instructions, 	     3.0 branch mis.,      4.1 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.22, cycles per 16-bit word:  0.835, instructions per 16-bit word 2.689
-min:     6840 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7011.7 cycles,  22029.0 instructions, 	     6.5 branch mis.,     11.2 cache ref.,      0.0 cache mis.
-
-
-== Trial 3 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.79, cycles per 16-bit word:  17.151, instructions per 16-bit word 65.013
-min:   140505 cycles,   532587 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 140789.3 cycles, 532587.0 instructions, 	     3.0 branch mis.,      5.0 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.22, cycles per 16-bit word:  0.835, instructions per 16-bit word 2.689
-min:     6839 cycles,    22029 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7013.3 cycles,  22029.0 instructions, 	     6.5 branch mis.,     10.3 cache ref.,      0.0 cache mis.
-
-n = 16384 m = 1
-iterations = 10000
-array size: 32.000 kB
-nothing                                 	instructions per cycle 0.20, cycles per 16-bit word:  0.004, instructions per 16-bit word 0.001
-min:       64 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     69.0 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
-
-== Trial 1 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.111, instructions per 16-bit word 65.007
-min:   280351 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 283580.1 cycles, 1065067.1 instructions, 	     3.0 branch mis.,      9.6 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.13, cycles per 16-bit word:  0.465, instructions per 16-bit word 1.456
-min:     7613 cycles,    23853 instructions, 	       5 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7770.9 cycles,  23853.0 instructions, 	     6.7 branch mis.,     24.8 cache ref.,      0.0 cache mis.
-
-
-== Trial 2 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.107, instructions per 16-bit word 65.007
-min:   280284 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 283051.5 cycles, 1065067.1 instructions, 	     3.0 branch mis.,     12.6 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.14, cycles per 16-bit word:  0.464, instructions per 16-bit word 1.456
-min:     7600 cycles,    23853 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7694.4 cycles,  23853.0 instructions, 	     6.6 branch mis.,     15.9 cache ref.,      0.0 cache mis.
-
-
-== Trial 3 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.125, instructions per 16-bit word 65.007
-min:   280577 cycles,  1065067 instructions, 	       2 branch mis.,        0 cache ref.,        0 cache mis.
-avg: 283589.7 cycles, 1065067.1 instructions, 	     3.0 branch mis.,     18.0 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.13, cycles per 16-bit word:  0.464, instructions per 16-bit word 1.456
-min:     7610 cycles,    23853 instructions, 	       6 branch mis.,        0 cache ref.,        0 cache mis.
-avg:   7702.4 cycles,  23853.0 instructions, 	     7.1 branch mis.,     12.8 cache ref.,      0.0 cache mis.
-
-n = 32768 m = 1
-iterations = 10000
-array size: 64.000 kB
-nothing                                 	instructions per cycle 0.33, cycles per 16-bit word:  0.001, instructions per 16-bit word 0.000
-min:       39 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     75.7 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
-
-== Trial 1 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.003
-min:   560116 cycles,  2130027 instructions, 	       2 branch mis.,       54 cache ref.,        0 cache mis.
-avg: 564127.2 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    129.5 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.06, cycles per 16-bit word:  0.275, instructions per 16-bit word 0.839
-min:     9000 cycles,    27501 instructions, 	       6 branch mis.,       80 cache ref.,        0 cache mis.
-avg:   9208.2 cycles,  27501.0 instructions, 	     8.4 branch mis.,    157.6 cache ref.,      0.0 cache mis.
-
-
-== Trial 2 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.003
-min:   560109 cycles,  2130027 instructions, 	       2 branch mis.,       35 cache ref.,        0 cache mis.
-avg: 563994.3 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    100.1 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.07, cycles per 16-bit word:  0.273, instructions per 16-bit word 0.839
-min:     8951 cycles,    27501 instructions, 	       6 branch mis.,       35 cache ref.,        0 cache mis.
-avg:   9167.6 cycles,  27501.0 instructions, 	     8.2 branch mis.,    108.5 cache ref.,      0.0 cache mis.
-
-
-== Trial 3 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.094, instructions per 16-bit word 65.003
-min:   560124 cycles,  2130027 instructions, 	       2 branch mis.,       32 cache ref.,        0 cache mis.
-avg: 564275.3 cycles, 2130027.2 instructions, 	     3.0 branch mis.,    103.7 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 3.07, cycles per 16-bit word:  0.273, instructions per 16-bit word 0.839
-min:     8944 cycles,    27501 instructions, 	       6 branch mis.,       28 cache ref.,        0 cache mis.
-avg:   9142.0 cycles,  27501.0 instructions, 	     8.2 branch mis.,     94.0 cache ref.,      0.0 cache mis.
-
-n = 65536 m = 1
-iterations = 10000
-array size: 128.000 kB
-nothing                                 	instructions per cycle 0.28, cycles per 16-bit word:  0.001, instructions per 16-bit word 0.000
-min:       47 cycles,       13 instructions, 	       0 branch mis.,        0 cache ref.,        0 cache mis.
-avg:     76.7 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.0 cache ref.,      0.0 cache mis.
-
-== Trial 1 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.096, instructions per 16-bit word 65.002
-min:  1120377 cycles,  4259947 instructions, 	       2 branch mis.,      403 cache ref.,        0 cache mis.
-avg: 1133104.5 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    593.1 cache ref.,      0.5 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 2.96, cycles per 16-bit word:  0.179, instructions per 16-bit word 0.531
-min:    11762 cycles,    34797 instructions, 	       6 branch mis.,      344 cache ref.,        0 cache mis.
-avg:  12120.9 cycles,  34797.0 instructions, 	     7.6 branch mis.,    491.5 cache ref.,      0.0 cache mis.
-
-
-== Trial 2 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.095, instructions per 16-bit word 65.002
-min:  1120325 cycles,  4259947 instructions, 	       2 branch mis.,      386 cache ref.,        0 cache mis.
-avg: 1132807.1 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    559.9 cache ref.,      0.0 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 2.93, cycles per 16-bit word:  0.181, instructions per 16-bit word 0.531
-min:    11869 cycles,    34797 instructions, 	       6 branch mis.,      386 cache ref.,        0 cache mis.
-avg:  12272.3 cycles,  34797.0 instructions, 	     7.7 branch mis.,    546.3 cache ref.,      0.0 cache mis.
-
-
-== Trial 3 out of 3
-
-pospopcnt_u16_scalar                    	alignments: 64
-instructions per cycle 3.80, cycles per 16-bit word:  17.093, instructions per 16-bit word 65.002
-min:  1120225 cycles,  4259947 instructions, 	       2 branch mis.,      482 cache ref.,        0 cache mis.
-avg: 1132752.5 cycles, 4259947.4 instructions, 	     3.0 branch mis.,    663.0 cache ref.,      0.3 cache mis.
-
-
-pospopcnt_u16_avx512bw_harvey_seal      	alignments: 64
-instructions per cycle 2.95, cycles per 16-bit word:  0.180, instructions per 16-bit word 0.531
-min:    11777 cycles,    34797 instructions, 	       7 branch mis.,      341 cache ref.,        0 cache mis.
-avg:  12160.1 cycles,  34797.0 instructions, 	     7.9 branch mis.,    493.6 cache ref.,      0.0 cache mis.
+pospopcnt_u16_avx512bw_harvey_seal_256B         alignments: 16 
+instructions per cycle 1.00, cycles per 16-bit word:  0.518, instructions per 16-bit word 0.517 
+min: 17366428 cycles, 17359781 instructions,         342 branch mis.,  1508192 cache ref.,   997052 cache mis.
+avg: 17946271.6 cycles, 17359781.7 instructions,           368.0 branch mis., 1512860.9 cache ref., 1007786.9 cache mis.
+ 12.235 GB/s 
+estimated clock in range 3.060 GHz to 3.169 GHz
