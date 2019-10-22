@@ -218,7 +218,8 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   results.resize(evts.size());
 
   bool isok = true;
-  for (uint32_t i = 0; i < iterations; i++) {
+  uint32_t test_iterations = 1; // we run one test iteration
+  for (uint32_t i = 0; i < test_iterations; i++) {
     std::vector<std::vector<uint32_t> > correctflags(m,
                                                      std::vector<uint32_t>(16));
     for (size_t k = 0; k < m; k++) {
@@ -226,13 +227,9 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
                            correctflags[k].data()); // this is our gold standard
     }
     std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
-    auto start = std::chrono::steady_clock::now();
-    unified.start();
     for (size_t k = 0; k < m; k++) {
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
-    unified.end(results);
-    auto end = std::chrono::steady_clock::now();
 
     uint64_t tot_obs = 0;
     for (size_t km = 0; km < m; ++km)
@@ -257,6 +254,18 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
         }
       }
     }
+  }
+
+  for (uint32_t i = 0; i < iterations; i++) {
+    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    auto start = std::chrono::steady_clock::now();
+    unified.start();
+    for (size_t k = 0; k < m; k++) {
+      fn(vdata[k].data(), vdata[k].size(), flags[k].data());
+    }
+    unified.end(results);
+    auto end = std::chrono::steady_clock::now();
+
     std::chrono::duration<double> secs = end - start;
     double time_in_s = secs.count();
     timings.push_back(time_in_s);
