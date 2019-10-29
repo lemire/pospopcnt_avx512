@@ -1,0 +1,74 @@
+$ ./instrumented_benchmark -v -n $((2**29))
+n = 536870912 m = 1
+iterations = 100
+array size: 1024.000 MB
+nothing                                 	instructions per cycle 0.20, cycles per 16-bit word:  0.000, instructions per 16-bit word 0.000
+min:       65 cycles,       13 instructions, 	       1 branch mis.,        0 cache ref.,        0 cache mis.
+avg:     67.5 cycles,     13.0 instructions, 	     1.0 branch mis.,      0.1 cache ref.,      0.1 cache mis.
+
+== Trial 1 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 16
+instructions per cycle 3.75, cycles per 16-bit word:  17.334, instructions per 16-bit word 65.000
+min: 9306366083 cycles, 34896612300 instructions, 	       6 branch mis., 21927294 cache ref., 16810210 cache mis.
+avg: 9310655628.7 cycles, 34896612310.5 instructions, 	    19.2 branch mis., 22002041.1 cache ref., 16810510.8 cache mis.
+ 0.367 GB/s
+estimated clock in range 3.166 GHz to 3.179 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB  	alignments: 16
+instructions per cycle 0.62, cycles per 16-bit word:  0.361, instructions per 16-bit word 0.224
+min: 193647030 cycles, 120441986 instructions, 	    2400 branch mis., 28808476 cache ref., 15793002 cache mis.
+avg: 194467110.1 cycles, 120441986.5 instructions, 	  4906.4 branch mis., 28951104.1 cache ref., 15828987.5 cache mis.
+ 17.629 GB/s
+estimated clock in range 3.107 GHz to 3.182 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B 	alignments: 16
+instructions per cycle 0.82, cycles per 16-bit word:  0.391, instructions per 16-bit word 0.322
+min: 209898674 cycles, 172739686 instructions, 	    3081 branch mis., 27373286 cache ref., 15922807 cache mis.
+avg: 210382318.2 cycles, 172739686.4 instructions, 	  5058.5 branch mis., 27406810.1 cache ref., 15934282.6 cache mis.
+ 16.270 GB/s
+estimated clock in range 3.127 GHz to 3.184 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_256B 	alignments: 16
+instructions per cycle 1.11, cycles per 16-bit word:  0.467, instructions per 16-bit word 0.517
+min: 250858524 cycles, 277593519 instructions, 	    4980 branch mis., 24257628 cache ref., 16300967 cache mis.
+avg: 251285505.1 cycles, 277593520.3 instructions, 	  5401.8 branch mis., 24285567.7 cache ref., 16315059.9 cache mis.
+ 13.622 GB/s
+estimated clock in range 3.128 GHz to 3.184 GHz
+
+
+== Trial 2 out of 3
+
+pospopcnt_u16_scalar                    	alignments: 16
+instructions per cycle 3.75, cycles per 16-bit word:  17.337, instructions per 16-bit word 65.000
+min: 9307710055 cycles, 34896612299 instructions, 	       7 branch mis., 21966489 cache ref., 16810382 cache mis.
+avg: 9311309436.1 cycles, 34896612309.0 instructions, 	    19.6 branch mis., 22003978.2 cache ref., 16810540.1 cache mis.
+ 0.367 GB/s
+estimated clock in range 3.167 GHz to 3.179 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_1KB  	alignments: 16
+instructions per cycle 0.62, cycles per 16-bit word:  0.361, instructions per 16-bit word 0.224
+min: 193904414 cycles, 120441986 instructions, 	    3513 branch mis., 28916800 cache ref., 15819247 cache mis.
+avg: 194369533.6 cycles, 120441986.4 instructions, 	  5209.1 branch mis., 28952621.8 cache ref., 15829349.3 cache mis.
+ 17.612 GB/s
+estimated clock in range 3.120 GHz to 3.185 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_512B 	alignments: 16
+instructions per cycle 0.82, cycles per 16-bit word:  0.391, instructions per 16-bit word 0.322
+min: 209768033 cycles, 172739686 instructions, 	    5176 branch mis., 27390175 cache ref., 15923841 cache mis.
+avg: 210364100.0 cycles, 172739686.4 instructions, 	  5619.1 branch mis., 27407305.2 cache ref., 15933567.4 cache mis.
+ 16.280 GB/s
+estimated clock in range 3.124 GHz to 3.185 GHz
+
+
+pospopcnt_u16_avx512bw_harvey_seal_256B 	alignments: 16
+instructions per cycle 1.11, cycles per 16-bit word:  0.467, instructions per 16-bit word 0.517
+min: 250929542 cycles, 277593519 instructions, 	    4854 branch mis., 24167020 cache ref., 16304010 cache mis.
+avg: 251337691.8 cycles, 277593520.6 instructions, 	  5129.5 branch mis., 24283613.6 cache ref., 16315664.5 cache mis.
+ 13.628 GB/s
+estimated clock in range 3.125 GHz to 3.185 GHz

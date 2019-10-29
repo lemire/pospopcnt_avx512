@@ -303,6 +303,87 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
 
   return isok;
 }
+template <class C>
+void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
+  std::vector<int> evts;
+  size_t maxsize = 0;
+#ifdef ALIGN
+  for (auto &x : vdata) { 
+     if(maxsize < x.size()) maxsize = x.size();
+     assert(get_alignment(x.data()) == 64);
+  }
+#endif
+  for (auto &x : vdata) { 
+     if(maxsize < x.size()) maxsize = x.size();
+  }
+  if (verbose) {
+    printf("alignments: ");
+    for (auto &x : vdata) {
+      printf("%d ", get_alignment(x.data()));
+    }
+    printf("\n");
+  }
+  evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
+  evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
+  evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
+  evts.push_back(PERF_COUNT_HW_CACHE_REFERENCES);
+  evts.push_back(PERF_COUNT_HW_CACHE_MISSES);
+  evts.push_back(PERF_COUNT_HW_REF_CPU_CYCLES);
+  LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
+  std::vector<unsigned long long> results; // tmp buffer
+  std::vector<std::vector<unsigned long long> > allresults;
+  std::vector<double> timings;
+  std::vector<double> freqs;
+  results.resize(evts.size());
+  std::vector<uint16_t> copybuf(maxsize);
+
+  for (uint32_t i = 0; i < iterations; i++) {
+    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    auto start = std::chrono::steady_clock::now();
+    unified.start();
+    for (size_t k = 0; k < m; k++) {
+      ::memcpy(copybuf.data(),vdata[k].data(),vdata[k].size()); 
+    }
+    unified.end(results);
+    auto end = std::chrono::steady_clock::now();
+
+    std::chrono::duration<double> secs = end - start;
+    double time_in_s = secs.count();
+    timings.push_back(time_in_s);
+    freqs.push_back(results[0]/(1000000000*time_in_s));
+    allresults.push_back(results);
+  }
+
+  std::vector<unsigned long long> mins = compute_mins(allresults);
+  std::vector<double> avg = compute_averages(allresults);
+  double min_timing = *min_element(timings.begin(), timings.end());
+  double min_freq = *min_element(freqs.begin(), freqs.end());
+  double max_freq = *max_element(freqs.begin(), freqs.end());
+  
+  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
+
+  if (verbose) {
+    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
+           "instructions per 16-bit word %4.3f \n",
+           double(mins[1]) / mins[0], double(mins[0]) / (n * m),
+           double(mins[1]) / (n * m));
+    // first we display mins
+    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
+           "cache ref., %8llu cache mis.\n",
+           mins[0], mins[1], mins[2], mins[3], mins[4]);
+    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
+           "cache ref., %8.1f cache mis.\n",
+           avg[0], avg[1], avg[2], avg[3], avg[4]);
+    printf(" %4.3f GB/s \n", speedinGBs);
+    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
+  } else {
+    printf(
+        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
+        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
+  }
+
+}
+
 void measureoverhead(uint32_t n, uint32_t iterations, bool verbose) {
   std::vector<int> evts;
   evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
@@ -427,7 +508,10 @@ int main(int argc, char **argv) {
         vdata[k][k2] = dis(gen); // random init.
       }
   }
- 
+  printf("%-40s\t", "memcpy");
+  benchmarkCopy(vdata, n, m, iterations, verbose);
+  printf("\n");
+   
   for (int t = 0; t < maxtrial; t++) {
     printf("\n== Trial %d out of %d \n", t + 1, maxtrial);
     for (size_t k = 0; k < PPOPCNT_NUMBER_METHODS; k++) {
