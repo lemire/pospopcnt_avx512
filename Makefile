@@ -12,6 +12,9 @@ itest: instrumented_benchmark
 
 DEPS=benchmark/linux/instrumented_benchmark.cpp benchmark/linux/linux-perf-events.h include/pospopcnt_avx512bw.h  include/pospopcnt.h 
 
+stream_benchmark: $(DEPS)  benchmark/linux/stream_benchmark.cpp 
+	$(CXX) $(CPPFLAGS) benchmark/linux/stream_benchmark.cpp -Iinclude -Ibenchmark/linux -o $@
+
 instrumented_benchmark: $(DEPS) 
 	$(CXX) $(CPPFLAGS) benchmark/linux/instrumented_benchmark.cpp -Iinclude -Ibenchmark/linux -o $@
 
