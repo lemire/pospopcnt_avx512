@@ -7,7 +7,7 @@
 	.section .rodata
 	.align	16
 magic:	.quad	0x0706050403020100
-	.quad	0x8040301008040201
+	.quad	0x8040201008040201
 	.int	0x55555555
 	.int	0x33333333
 	.int	0x0f0f0f0f
