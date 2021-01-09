@@ -28,13 +28,23 @@
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
                                           uint32_t *flags);
-#define PPOPCNT_NUMBER_METHODS 4
+
+extern "C" void count16avx512(uint64_t flags[16], const uint16_t *buf, size_t len);
+
+static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, uint32_t *flags)
+{
+
+	// TODO: fix type mismatch in flags
+	count16avx512((uint64_t*)flags, data, len);
+}
+
+#define PPOPCNT_NUMBER_METHODS 5
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
-  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B
+  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B, pospopcnt_count16avx512,
 };
 
 static const char *const pospopcnt_u16_method_names[] = {
-  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B"
+  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B", "pospopcnt_count16avx512",
 };
 
 void print16(uint32_t *flags) {
@@ -122,7 +132,8 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
     }
     uint32_t correctflags[16] = { 0 };
     pospopcnt_u16_scalar(vdata, n, correctflags); // this is our gold standard
-    uint32_t flags[16] = { 0 };
+//    uint32_t flags[16] = { 0 };
+    uint32_t flags[32] = { 0 }; // kludge!
 
     unified.start();
     fn(vdata, n, flags);
