@@ -27,15 +27,13 @@
 
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
-                                          uint32_t *flags);
+                                          uint64_t *flags);
 
 extern "C" void count16avx512(uint64_t flags[16], const uint16_t *buf, size_t len);
 
-static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, uint32_t *flags)
+static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, uint64_t *flags)
 {
-
-	// TODO: fix type mismatch in flags
-	count16avx512((uint64_t*)flags, data, len);
+	count16avx512(flags, data, len);
 }
 
 #define PPOPCNT_NUMBER_METHODS 5
@@ -47,7 +45,7 @@ static const char *const pospopcnt_u16_method_names[] = {
   "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B", "pospopcnt_count16avx512",
 };
 
-void print16(uint32_t *flags) {
+void print16(uint64_t *flags) {
   for (int k = 0; k < 16; k++)
     printf(" %8u ", flags[k]);
   printf("\n");
@@ -130,10 +128,9 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
     for (size_t k = 0; k < n; k++) {
       vdata[k] = dis(gen); // random init.
     }
-    uint32_t correctflags[16] = { 0 };
+    uint64_t correctflags[16] = { 0 };
     pospopcnt_u16_scalar(vdata, n, correctflags); // this is our gold standard
-//    uint32_t flags[16] = { 0 };
-    uint32_t flags[32] = { 0 }; // kludge!
+    uint64_t flags[16] = { 0 }; // kludge!
 
     unified.start();
     fn(vdata, n, flags);
@@ -231,13 +228,13 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
   for (uint32_t i = 0; i < test_iterations; i++) {
-    std::vector<std::vector<uint32_t> > correctflags(m,
-                                                     std::vector<uint32_t>(16));
+    std::vector<std::vector<uint64_t> > correctflags(m,
+                                                     std::vector<uint64_t>(16));
     for (size_t k = 0; k < m; k++) {
       pospopcnt_u16_scalar(vdata[k].data(), vdata[k].size(),
                            correctflags[k].data()); // this is our gold standard
     }
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<uint64_t> > flags(m, std::vector<uint64_t>(16));
     for (size_t k = 0; k < m; k++) {
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
@@ -268,7 +265,7 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   }
 
   for (uint32_t i = 0; i < iterations; i++) {
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<uint64_t> > flags(m, std::vector<uint64_t>(16));
     auto start = std::chrono::steady_clock::now();
     unified.start();
     for (size_t k = 0; k < m; k++) {
@@ -349,7 +346,7 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
   std::vector<uint16_t> copybuf(maxsize);
 
   for (uint32_t i = 0; i < iterations; i++) {
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<uint64_t> > flags(m, std::vector<uint64_t>(16));
     auto start = std::chrono::steady_clock::now();
     unified.start();
     for (size_t k = 0; k < m; k++) {

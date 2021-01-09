@@ -20,7 +20,7 @@ static inline void pospopcnt_csa_avx512(__m512i *__restrict__ h,
 //
 // Uses 1KB blocks
 static void pospopcnt_u16_avx512bw_harvey_seal_1KB(const uint16_t *array,
-                                               uint32_t len, uint32_t *flags) {
+                                               uint32_t len, uint64_t *flags) {
   for (uint32_t i = len - (len % (32 * 16)); i < len; ++i) {
     for (int j = 0; j < 16; ++j) {
       flags[j] += (((array[i]) >> j) & 1);
@@ -92,7 +92,7 @@ static void pospopcnt_u16_avx512bw_harvey_seal_1KB(const uint16_t *array,
     for (size_t i = 0; i < 16; ++i) {
       _mm512_storeu_si512((__m512i *)buffer, counter[i]);
       for (size_t z = 0; z < 32; z++) {
-        flags[i] += 16 * (uint32_t)buffer[z];
+        flags[i] += 16 * (uint64_t)buffer[z];
       }
     }
   }
@@ -133,7 +133,7 @@ static void pospopcnt_u16_avx512bw_harvey_seal_1KB(const uint16_t *array,
 // Uses 512B blocks
 static void pospopcnt_u16_avx512bw_harvey_seal_512B(const uint16_t *array,
                                                     uint32_t len,
-                                                    uint32_t *flags) {
+                                                    uint64_t *flags) {
   for (uint32_t i = len - (len % (32 * 8)); i < len; ++i) {
     for (int j = 0; j < 16; ++j) {
       flags[j] += (((array[i]) >> j) & 1);
@@ -192,7 +192,7 @@ static void pospopcnt_u16_avx512bw_harvey_seal_512B(const uint16_t *array,
     for (size_t i = 0; i < 16; ++i) {
       _mm512_storeu_si512((__m512i *)buffer, counter[i]);
       for (size_t z = 0; z < 32; z++) {
-        flags[i] += 8 * (uint32_t)buffer[z];
+        flags[i] += 8 * (uint64_t)buffer[z];
       }
     }
   }
@@ -235,7 +235,7 @@ static void pospopcnt_u16_avx512bw_harvey_seal_512B(const uint16_t *array,
 // Uses 256B blocks
 static void pospopcnt_u16_avx512bw_harvey_seal_256B(const uint16_t *array,
                                                     uint32_t len,
-                                                    uint32_t *flags) {
+                                                    uint64_t *flags) {
   for (uint32_t i = len - (len % (32 * 4)); i < len; ++i) {
     for (int j = 0; j < 16; ++j) {
       flags[j] += (((array[i]) >> j) & 1);
@@ -287,7 +287,7 @@ static void pospopcnt_u16_avx512bw_harvey_seal_256B(const uint16_t *array,
     for (size_t i = 0; i < 16; ++i) {
       _mm512_storeu_si512((__m512i *)buffer, counter[i]);
       for (size_t z = 0; z < 32; z++) {
-        flags[i] += 4 * (uint32_t)buffer[z];
+        flags[i] += 4 * (uint64_t)buffer[z];
       }
     }
   }
