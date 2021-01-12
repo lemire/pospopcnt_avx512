@@ -1,6 +1,12 @@
+#include <cinttypes>
+#if FLAGSIZE == 64
+typedef uint64_t flags_type;
+#else
+typedef uint32_t flags_type;
+#endif
+
 #ifdef __linux__
 #include <cassert>
-#include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -27,19 +33,27 @@
 
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
-                                          uint32_t *flags);
-#define PPOPCNT_NUMBER_METHODS 4
+                                          flags_type *flags);
+
+extern "C" void count16avx512(flags_type flags[16], const uint16_t *buf, size_t len);
+
+static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	count16avx512(flags, data, len);
+}
+
+#define PPOPCNT_NUMBER_METHODS 5
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
-  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B
+  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B, pospopcnt_count16avx512,
 };
 
 static const char *const pospopcnt_u16_method_names[] = {
-  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B"
+  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B", "pospopcnt_count16avx512",
 };
 
-void print16(uint32_t *flags) {
+void print16(flags_type *flags) {
   for (int k = 0; k < 16; k++)
-    printf(" %8u ", flags[k]);
+    printf(" %8ju ", (uintmax_t)flags[k]);
   printf("\n");
 }
 
@@ -120,9 +134,9 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
     for (size_t k = 0; k < n; k++) {
       vdata[k] = dis(gen); // random init.
     }
-    uint32_t correctflags[16] = { 0 };
+    flags_type correctflags[16] = { 0 };
     pospopcnt_u16_scalar(vdata, n, correctflags); // this is our gold standard
-    uint32_t flags[16] = { 0 };
+    flags_type flags[16] = { 0 }; // kludge!
 
     unified.start();
     fn(vdata, n, flags);
@@ -220,13 +234,13 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
   for (uint32_t i = 0; i < test_iterations; i++) {
-    std::vector<std::vector<uint32_t> > correctflags(m,
-                                                     std::vector<uint32_t>(16));
+    std::vector<std::vector<flags_type> > correctflags(m,
+                                                     std::vector<flags_type>(16));
     for (size_t k = 0; k < m; k++) {
       pospopcnt_u16_scalar(vdata[k].data(), vdata[k].size(),
                            correctflags[k].data()); // this is our gold standard
     }
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     for (size_t k = 0; k < m; k++) {
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
@@ -257,7 +271,7 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   }
 
   for (uint32_t i = 0; i < iterations; i++) {
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     auto start = std::chrono::steady_clock::now();
     unified.start();
     for (size_t k = 0; k < m; k++) {
@@ -338,7 +352,7 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
   std::vector<uint16_t> copybuf(maxsize);
 
   for (uint32_t i = 0; i < iterations; i++) {
-    std::vector<std::vector<uint32_t> > flags(m, std::vector<uint32_t>(16));
+    std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     auto start = std::chrono::steady_clock::now();
     unified.start();
     for (size_t k = 0; k < m; k++) {
