@@ -12,7 +12,7 @@ __attribute__((optimize("no-tree-vectorize")))
 // an histogram of 16 counts stored in flags, corresponding
 // to the number of bit sets at the corresponding indexes (0,1,...,15).
 static void pospopcnt_u16_scalar(const uint16_t *data, uint32_t len,
-                                 uint64_t *flags) {
+                                 flags_type *flags) {
   for (int i = 0; i < len; ++i) {
       uint64_t w = data[i];
       flags[0] += ((w >> 0) & 1);
