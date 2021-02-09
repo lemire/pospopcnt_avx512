@@ -470,10 +470,11 @@ int main(int argc, char **argv) {
   if (iterations == 0) {
       iterations = 100;
   }
-  if(m * n < 10000000) {
+  size_t min_volume = 1000000;
+  if(m * n < min_volume) {
     printf("The benchmark is designed to measure the time in units of m*n inputs.\n");
     printf("But your choices make m*n too small, so increasing m.\n");
-    while(m * n < 1000000) {
+    while(m * n < min_volume) {
        m++;
     }
   }
