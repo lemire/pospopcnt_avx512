@@ -111,9 +111,6 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
   std::vector<int> evts;
   uint16_t *vdata = (uint16_t *)memory_allocate(n * sizeof(uint16_t));
   std::unique_ptr<uint16_t, decltype(&free)> dataholder(vdata, free);
-  if (verbose) {
-    printf("alignment: %d\n", get_alignment(vdata));
-  }
   evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
   evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
   evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
@@ -211,13 +208,6 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
     assert(get_alignment(x.data()) == 64);
   }
 #endif
-  if (verbose) {
-    printf("alignments: ");
-    for (auto &x : vdata) {
-      printf("%d ", get_alignment(x.data()));
-    }
-    printf("\n");
-  }
   evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
   evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
   evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
@@ -329,13 +319,6 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
 #endif
   for (auto &x : vdata) { 
      if(maxsize < x.size()) maxsize = x.size();
-  }
-  if (verbose) {
-    printf("alignments: ");
-    for (auto &x : vdata) {
-      printf("%d ", get_alignment(x.data()));
-    }
-    printf("\n");
   }
   evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
   evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
@@ -485,10 +468,14 @@ int main(int argc, char **argv) {
   }
 
   if (iterations == 0) {
-    if (m * n < 1000000)
-      iterations = 10000;
-    else
       iterations = 100;
+  }
+  if(m * n < 10000000) {
+    printf("The benchmark is designed to measure the time in units of m*n inputs.\n");
+    printf("But your choices make m*n too small, so increasing m.\n");
+    while(m * n < 1000000) {
+       m++;
+    }
   }
   printf("n = %zu m = %zu \n", n, m);
   printf("iterations = %zu \n", iterations);
