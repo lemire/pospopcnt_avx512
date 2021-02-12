@@ -104,6 +104,7 @@ class BenchmarkState {
     PERF_COUNT_HW_REF_CPU_CYCLES
   };
 
+  BenchmarkState *overhead = nullptr;
   LinuxEvents<PERF_TYPE_HARDWARE> unified;
   std::vector<unsigned long long> results; // tmp buffer
   std::chrono::time_point<std::chrono::steady_clock> start;
@@ -117,6 +118,12 @@ public:
     results.resize(evts.size());
   }
 
+  BenchmarkState(BenchmarkState *oh) : unified(evts) {
+    overhead = oh;
+    results.resize(evts.size());
+  }
+
+  // begin measurement of a benchmark iteration
   void begin() {
     assert(!in_progress);
     in_progress = true;
@@ -125,6 +132,7 @@ public:
     unified.start();
   }
 
+  // end measurement of a benchmark iteration
   void end() {
     assert(in_progress);
 
@@ -146,6 +154,20 @@ public:
     double min_timing = *min_element(timings.begin(), timings.end());
     double min_freq = *min_element(freqs.begin(), freqs.end());
     double max_freq = *max_element(freqs.begin(), freqs.end());
+
+    // compensate for measuring overhead by subtracting the overhead
+    if (overhead != nullptr) {
+      std::vector<unsigned long long> oh_mins = compute_mins(overhead->allresults);
+      std::vector<double> oh_avg = compute_averages(overhead->allresults);
+      min_timing -= *min_element(overhead->timings.begin(), overhead->timings.end());
+
+      assert(mins.size() == oh_mins.size());
+      for (size_t i = 0; i < mins.size(); i++) {
+        mins[i] -= oh_mins[i];
+        avg[i] -= oh_avg[i];
+      }
+    }
+
     double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1e9);
 
     if (verbose) {
@@ -183,14 +205,15 @@ public:
  *supported.
  */
 template <class C>
-bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
+bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+                   uint32_t iterations,
                    pospopcnt_u16_method_type fn, bool verbose, bool test) {
 #ifdef ALIGN
   for (auto &x : vdata) {
     assert(get_alignment(x.data()) == 64);
   }
 #endif
-  BenchmarkState bench;
+  BenchmarkState bench(overhead);
 
   bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
@@ -245,7 +268,8 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
   return isok;
 }
 template <class C>
-void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
+void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+                    uint32_t iterations, bool verbose) {
   size_t maxsize = 0;
 #ifdef ALIGN
   for (auto &x : vdata) { 
@@ -257,7 +281,7 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
      if(maxsize < x.size()) maxsize = x.size();
   }
 
-  BenchmarkState bench;
+  BenchmarkState bench(overhead);
   std::vector<uint16_t> copybuf(maxsize);
 
   for (uint32_t i = 0; i < iterations; i++) {
@@ -272,22 +296,26 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
   bench.printResults(verbose, n, m);
 }
 
-void measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
-  BenchmarkState bench;
+BenchmarkState *measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
+  BenchmarkState *bench = new BenchmarkState;
 
   for (uint32_t i = 0; i < iterations; i++) {
-    bench.begin();
-    bench.end();
+    bench->begin();
+    bench->end();
   }
 
-  bench.printResults(verbose, n, m);
+  bench->printResults(verbose, n, m);
+
+  return bench;
 }
 
 static void print_usage(char *command) {
-  printf(" Try %s -n 100000 -i 15 -v \n", command);
-  printf("-n is the number of 16-bit words \n");
-  printf("-i is the number of tests or iterations \n");
-  printf("-v makes things verbose\n");
+  printf(" Try %s -n 100000 -i 15 -v\n", command);
+  printf("-c compensate overhead in measurements\n");
+  printf("-m number of arrays\n");
+  printf("-n number of 16-bit words per array\n");
+  printf("-i number of iterations\n");
+  printf("-v enable verbose (perf counter) output\n");
 }
 
 int main(int argc, char **argv) {
@@ -295,10 +323,14 @@ int main(int argc, char **argv) {
   size_t m = 1;
   size_t iterations = 0;
   bool verbose = false;
+  bool compensate = false;
   int c;
 
-  while ((c = getopt(argc, argv, "vhm:n:i:")) != -1) {
+  while ((c = getopt(argc, argv, "cvhm:n:i:")) != -1) {
     switch (c) {
+    case 'c':
+      compensate = true;
+      break;
     case 'n':
       n = atoll(optarg);
       break;
@@ -315,7 +347,8 @@ int main(int argc, char **argv) {
       iterations = atoi(optarg);
       break;
     default:
-      abort();
+      print_usage(argv[0]);
+      return EXIT_FAILURE;
     }
   }
 
@@ -357,7 +390,12 @@ int main(int argc, char **argv) {
   }
 
   printf("%-40s\t", "overhead");
-  measureoverhead(n, m, iterations, verbose);
+  auto overhead = measureoverhead(n, m, iterations, verbose);
+  if (!compensate) {
+    delete overhead;
+    overhead = nullptr;
+  }
+
   int maxtrial = 3;
 #ifdef ALIGN
   std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
@@ -374,7 +412,7 @@ int main(int argc, char **argv) {
       }
   }
   printf("%-40s\t", "memcpy");
-  benchmarkCopy(vdata, n, m, iterations, verbose);
+  benchmarkCopy(vdata, overhead, n, m, iterations, verbose);
   printf("\n");
    
   for (int t = 0; t < maxtrial; t++) {
@@ -383,7 +421,7 @@ int main(int argc, char **argv) {
       printf("\n");
       printf("%-40s\t", pospopcnt_u16_method_names[k]);
       fflush(NULL);
-      bool isok = benchmarkMany(vdata, n, m, iterations, pospopcnt_u16_methods[k],
+      bool isok = benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k],
                                 verbose, true);
       if (isok == false) {
         printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
@@ -394,6 +432,8 @@ int main(int argc, char **argv) {
   }
   if (!verbose)
     printf("Try -v to get more details.\n");
+
+  delete overhead;
 
   return EXIT_SUCCESS;
 }
