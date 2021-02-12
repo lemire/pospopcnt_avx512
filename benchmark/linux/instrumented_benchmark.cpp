@@ -94,97 +94,102 @@ compute_averages(std::vector<std::vector<unsigned long long> > allresults) {
   return answer;
 }
 
-/**
- * @brief
- *
- * @param n          Number of integers.
- * @param iterations Number of iterations.
- * @param fn         Target function pointer.
- * @param verbose    Flag enabling verbose output.
- * @return           Returns true if the results are correct. Returns false if
- *the results
- *                   are either incorrect or the target function is not
- *supported.
- */
-bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
-               bool verbose, bool test) {
-  std::vector<int> evts;
-  uint16_t *vdata = (uint16_t *)memory_allocate(n * sizeof(uint16_t));
-  std::unique_ptr<uint16_t, decltype(&free)> dataholder(vdata, free);
-  evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
-  evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
-  evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
-  evts.push_back(PERF_COUNT_HW_CACHE_REFERENCES);
-  evts.push_back(PERF_COUNT_HW_CACHE_MISSES);
-  evts.push_back(PERF_COUNT_HW_REF_CPU_CYCLES);
-  LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
+class BenchmarkState {
+  std::vector<int> evts = {
+    PERF_COUNT_HW_CPU_CYCLES,
+    PERF_COUNT_HW_INSTRUCTIONS,
+    PERF_COUNT_HW_BRANCH_MISSES,
+    PERF_COUNT_HW_CACHE_REFERENCES,
+    PERF_COUNT_HW_CACHE_MISSES,
+    PERF_COUNT_HW_REF_CPU_CYCLES
+  };
+
+  BenchmarkState *overhead = nullptr;
+  LinuxEvents<PERF_TYPE_HARDWARE> unified;
   std::vector<unsigned long long> results; // tmp buffer
+  std::chrono::time_point<std::chrono::steady_clock> start;
   std::vector<std::vector<unsigned long long> > allresults;
-  results.resize(evts.size());
+  std::vector<double> timings;
+  std::vector<double> freqs;
+  bool in_progress = false;
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, 0xFFFF);
+public:
+  BenchmarkState() : unified(evts) {
+    results.resize(evts.size());
+  }
 
-  bool isok = true;
-  for (uint32_t i = 0; i < iterations; i++) {
-    for (size_t k = 0; k < n; k++) {
-      vdata[k] = dis(gen); // random init.
-    }
-    flags_type correctflags[16] = { 0 };
-    pospopcnt_u16_scalar(vdata, n, correctflags); // this is our gold standard
-    flags_type flags[16] = { 0 }; // kludge!
+  BenchmarkState(BenchmarkState *oh) : unified(evts) {
+    overhead = oh;
+    results.resize(evts.size());
+  }
 
+  // begin measurement of a benchmark iteration
+  void begin() {
+    assert(!in_progress);
+    in_progress = true;
+
+    start = std::chrono::steady_clock::now();
     unified.start();
-    fn(vdata, n, flags);
+  }
+
+  // end measurement of a benchmark iteration
+  void end() {
+    assert(in_progress);
+
     unified.end(results);
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> secs = end - start;
+    double time_in_s = secs.count();
+    timings.push_back(time_in_s);
+    freqs.push_back(results[0]/(1e9*time_in_s));
+    allresults.push_back(results);
 
-    uint64_t tot_obs = 0;
-    for (size_t k = 0; k < 16; ++k)
-      tot_obs += flags[k];
-    if (tot_obs == 0) { // when a method is not supported it returns all zero
-      return false;
-    }
+    in_progress = false;
+  }
 
-    for (size_t k = 0; k < 16; k++) {
-      if (correctflags[k] != flags[k]) {
-        if (test) {
-          printf("bug:\n");
-          printf("expected : ");
-          print16(correctflags);
-          printf("got      : ");
-          print16(flags);
-          return false;
-        } else {
-          isok = false;
-        }
+  void printResults(bool verbose, uint32_t n, uint32_t m)
+  {
+    std::vector<unsigned long long> mins = compute_mins(allresults);
+    std::vector<double> avg = compute_averages(allresults);
+    double min_timing = *min_element(timings.begin(), timings.end());
+    double min_freq = *min_element(freqs.begin(), freqs.end());
+    double max_freq = *max_element(freqs.begin(), freqs.end());
+
+    // compensate for measuring overhead by subtracting the overhead
+    if (overhead != nullptr) {
+      std::vector<unsigned long long> oh_mins = compute_mins(overhead->allresults);
+      std::vector<double> oh_avg = compute_averages(overhead->allresults);
+      min_timing -= *min_element(overhead->timings.begin(), overhead->timings.end());
+
+      assert(mins.size() == oh_mins.size());
+      for (size_t i = 0; i < mins.size(); i++) {
+        mins[i] -= oh_mins[i];
+        avg[i] -= oh_avg[i];
       }
     }
-    allresults.push_back(results);
+
+    double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1e9);
+
+    if (verbose) {
+      printf("instructions per cycle %4.2f, cycles per 16-bit word: %4.3f, "
+             "instructions per 16-bit word %4.3f \n",
+             double(mins[1]) / mins[0], double(mins[0]) / (m * n),
+             double(mins[1]) / (n * m));
+      // first we display mins
+      printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
+             "cache ref., %8llu cache mis.\n",
+             mins[0], mins[1], mins[2], mins[3], mins[4]);
+      printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
+             "cache ref., %8.1f cache mis.\n",
+             avg[0], avg[1], avg[2], avg[3], avg[4]);
+      printf(" %4.3f GB/s \n", speedinGBs);
+      printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
+    } else {
+      printf("cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
+      double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
+    }
   }
-
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / n, double(mins[1]) / n);
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f \n",
-        double(mins[0]) / n, double(mins[5]) / n);
-  }
-
-  return isok;
-}
+};
 
 /**
  * @brief
@@ -200,26 +205,15 @@ bool benchmark(uint32_t n, uint32_t iterations, pospopcnt_u16_method_type fn,
  *supported.
  */
 template <class C>
-bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
+bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+                   uint32_t iterations,
                    pospopcnt_u16_method_type fn, bool verbose, bool test) {
-  std::vector<int> evts;
 #ifdef ALIGN
   for (auto &x : vdata) {
     assert(get_alignment(x.data()) == 64);
   }
 #endif
-  evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
-  evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
-  evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
-  evts.push_back(PERF_COUNT_HW_CACHE_REFERENCES);
-  evts.push_back(PERF_COUNT_HW_CACHE_MISSES);
-  evts.push_back(PERF_COUNT_HW_REF_CPU_CYCLES);
-  LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
-  std::vector<unsigned long long> results; // tmp buffer
-  std::vector<std::vector<unsigned long long> > allresults;
-  std::vector<double> timings;
-  std::vector<double> freqs;
-  results.resize(evts.size());
+  BenchmarkState bench(overhead);
 
   bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
@@ -262,54 +256,20 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
 
   for (uint32_t i = 0; i < iterations; i++) {
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
-    auto start = std::chrono::steady_clock::now();
-    unified.start();
+    bench.begin();
     for (size_t k = 0; k < m; k++) {
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
-    unified.end(results);
-    auto end = std::chrono::steady_clock::now();
-
-    std::chrono::duration<double> secs = end - start;
-    double time_in_s = secs.count();
-    timings.push_back(time_in_s);
-    freqs.push_back(results[0]/(1000000000*time_in_s));
-    allresults.push_back(results);
+    bench.end();
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  double min_timing = *min_element(timings.begin(), timings.end());
-  double min_freq = *min_element(freqs.begin(), freqs.end());
-  double max_freq = *max_element(freqs.begin(), freqs.end());
-  
-  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
-
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / (n * m),
-           double(mins[1]) / (n * m));
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-    printf(" %4.3f GB/s \n", speedinGBs);
-    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
-        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
-  }
+  bench.printResults(verbose, n, m);
 
   return isok;
 }
 template <class C>
-void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
-  std::vector<int> evts;
+void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+                    uint32_t iterations, bool verbose) {
   size_t maxsize = 0;
 #ifdef ALIGN
   for (auto &x : vdata) { 
@@ -320,112 +280,42 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
   for (auto &x : vdata) { 
      if(maxsize < x.size()) maxsize = x.size();
   }
-  evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
-  evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
-  evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
-  evts.push_back(PERF_COUNT_HW_CACHE_REFERENCES);
-  evts.push_back(PERF_COUNT_HW_CACHE_MISSES);
-  evts.push_back(PERF_COUNT_HW_REF_CPU_CYCLES);
-  LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
-  std::vector<unsigned long long> results; // tmp buffer
-  std::vector<std::vector<unsigned long long> > allresults;
-  std::vector<double> timings;
-  std::vector<double> freqs;
-  results.resize(evts.size());
+
+  BenchmarkState bench(overhead);
   std::vector<uint16_t> copybuf(maxsize);
 
   for (uint32_t i = 0; i < iterations; i++) {
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
-    auto start = std::chrono::steady_clock::now();
-    unified.start();
+    bench.begin();
     for (size_t k = 0; k < m; k++) {
       ::memcpy(copybuf.data(),vdata[k].data(),vdata[k].size()); 
     }
-    unified.end(results);
-    auto end = std::chrono::steady_clock::now();
-
-    std::chrono::duration<double> secs = end - start;
-    double time_in_s = secs.count();
-    timings.push_back(time_in_s);
-    freqs.push_back(results[0]/(1000000000*time_in_s));
-    allresults.push_back(results);
+    bench.end();
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  double min_timing = *min_element(timings.begin(), timings.end());
-  double min_freq = *min_element(freqs.begin(), freqs.end());
-  double max_freq = *max_element(freqs.begin(), freqs.end());
-  
-  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
-
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / (n * m),
-           double(mins[1]) / (n * m));
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-    printf(" %4.3f GB/s \n", speedinGBs);
-    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
-        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
-  }
-
+  bench.printResults(verbose, n, m);
 }
 
-void measureoverhead(uint32_t n, uint32_t iterations, bool verbose) {
-  std::vector<int> evts;
-  evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
-  evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
-  evts.push_back(PERF_COUNT_HW_BRANCH_MISSES);
-  evts.push_back(PERF_COUNT_HW_CACHE_REFERENCES);
-  evts.push_back(PERF_COUNT_HW_CACHE_MISSES);
-  evts.push_back(PERF_COUNT_HW_REF_CPU_CYCLES);
-  LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
-  std::vector<unsigned long long> results; // tmp buffer
-  std::vector<std::vector<unsigned long long> > allresults;
-  results.resize(evts.size());
+BenchmarkState *measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
+  BenchmarkState *bench = new BenchmarkState;
 
   for (uint32_t i = 0; i < iterations; i++) {
-    unified.start();
-    unified.end(results);
-    allresults.push_back(results);
+    bench->begin();
+    bench->end();
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  printf("%-40s\t", "nothing");
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / n, double(mins[1]) / n);
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f \n",
-        double(mins[0]) / n, double(mins[5]) / n);
-  }
+  bench->printResults(verbose, n, m);
+
+  return bench;
 }
 
 static void print_usage(char *command) {
-  printf(" Try %s -n 100000 -i 15 -v \n", command);
-  printf("-n is the number of 16-bit words \n");
-  printf("-i is the number of tests or iterations \n");
-  printf("-v makes things verbose\n");
+  printf(" Try %s -n 100000 -i 15 -v\n", command);
+  printf("-c compensate overhead in measurements\n");
+  printf("-m number of arrays\n");
+  printf("-n number of 16-bit words per array\n");
+  printf("-i number of iterations\n");
+  printf("-v enable verbose (perf counter) output\n");
 }
 
 int main(int argc, char **argv) {
@@ -433,10 +323,14 @@ int main(int argc, char **argv) {
   size_t m = 1;
   size_t iterations = 0;
   bool verbose = false;
+  bool compensate = false;
   int c;
 
-  while ((c = getopt(argc, argv, "vhm:n:i:")) != -1) {
+  while ((c = getopt(argc, argv, "cvhm:n:i:")) != -1) {
     switch (c) {
+    case 'c':
+      compensate = true;
+      break;
     case 'n':
       n = atoll(optarg);
       break;
@@ -453,7 +347,8 @@ int main(int argc, char **argv) {
       iterations = atoi(optarg);
       break;
     default:
-      abort();
+      print_usage(argv[0]);
+      return EXIT_FAILURE;
     }
   }
 
@@ -494,7 +389,13 @@ int main(int argc, char **argv) {
     printf("array size: %.3f MB\n", array_in_bytes / (1024 * 1024.));
   }
 
-  measureoverhead(n * m, iterations, verbose);
+  printf("%-40s\t", "overhead");
+  auto overhead = measureoverhead(n, m, iterations, verbose);
+  if (!compensate) {
+    delete overhead;
+    overhead = nullptr;
+  }
+
   int maxtrial = 3;
 #ifdef ALIGN
   std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
@@ -511,7 +412,7 @@ int main(int argc, char **argv) {
       }
   }
   printf("%-40s\t", "memcpy");
-  benchmarkCopy(vdata, n, m, iterations, verbose);
+  benchmarkCopy(vdata, overhead, n, m, iterations, verbose);
   printf("\n");
    
   for (int t = 0; t < maxtrial; t++) {
@@ -520,7 +421,7 @@ int main(int argc, char **argv) {
       printf("\n");
       printf("%-40s\t", pospopcnt_u16_method_names[k]);
       fflush(NULL);
-      bool isok = benchmarkMany(vdata, n, m, iterations, pospopcnt_u16_methods[k],
+      bool isok = benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k],
                                 verbose, true);
       if (isok == false) {
         printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
@@ -531,6 +432,8 @@ int main(int argc, char **argv) {
   }
   if (!verbose)
     printf("Try -v to get more details.\n");
+
+  delete overhead;
 
   return EXIT_SUCCESS;
 }
