@@ -94,6 +94,37 @@ compute_averages(std::vector<std::vector<unsigned long long> > allresults) {
   return answer;
 }
 
+void printResults(bool verbose, uint32_t n, uint32_t m,
+                  std::vector<double> &timings, std::vector<double> &freqs,
+                  std::vector<std::vector<unsigned long long> > &allresults)
+{
+  std::vector<unsigned long long> mins = compute_mins(allresults);
+  std::vector<double> avg = compute_averages(allresults);
+  double min_timing = *min_element(timings.begin(), timings.end());
+  double min_freq = *min_element(freqs.begin(), freqs.end());
+  double max_freq = *max_element(freqs.begin(), freqs.end());
+  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1e9);
+
+  if (verbose) {
+    printf("instructions per cycle %4.2f, cycles per 16-bit word: %4.3f, "
+           "instructions per 16-bit word %4.3f \n",
+           double(mins[1]) / mins[0], double(mins[0]) / (m * n),
+           double(mins[1]) / (n * m));
+    // first we display mins
+    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
+           "cache ref., %8llu cache mis.\n",
+           mins[0], mins[1], mins[2], mins[3], mins[4]);
+    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
+           "cache ref., %8.1f cache mis.\n",
+           avg[0], avg[1], avg[2], avg[3], avg[4]);
+    printf(" %4.3f GB/s \n", speedinGBs);
+    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
+  } else {
+    printf("cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
+    double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
+  }
+}
+
 /**
  * @brief
  *
@@ -185,33 +216,7 @@ bool benchmarkMany(C & vdata, uint32_t n, uint32_t m, uint32_t iterations,
     allresults.push_back(results);
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  double min_timing = *min_element(timings.begin(), timings.end());
-  double min_freq = *min_element(freqs.begin(), freqs.end());
-  double max_freq = *max_element(freqs.begin(), freqs.end());
-  
-  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
-
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / (n * m),
-           double(mins[1]) / (n * m));
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-    printf(" %4.3f GB/s \n", speedinGBs);
-    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
-        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
-  }
+  printResults(verbose, n, m, timings, freqs, allresults);
 
   return isok;
 }
@@ -259,37 +264,10 @@ void  benchmarkCopy(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool
     allresults.push_back(results);
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  double min_timing = *min_element(timings.begin(), timings.end());
-  double min_freq = *min_element(freqs.begin(), freqs.end());
-  double max_freq = *max_element(freqs.begin(), freqs.end());
-  
-  double speedinGBs = (m * n * sizeof(uint16_t)) / (min_timing * 1000000000.0);
-
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / (n * m),
-           double(mins[1]) / (n * m));
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-    printf(" %4.3f GB/s \n", speedinGBs);
-    printf("estimated clock in range %4.3f GHz to %4.3f GHz\n", min_freq, max_freq);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f; speed in GB/s %4.3f \n",
-        double(mins[0]) / (n * m), double(mins[5]) / (n * m), speedinGBs);
-  }
-
+  printResults(verbose, n, m, timings, freqs, allresults);
 }
 
-void measureoverhead(uint32_t n, uint32_t iterations, bool verbose) {
+void measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
   std::vector<int> evts;
   evts.push_back(PERF_COUNT_HW_CPU_CYCLES);
   evts.push_back(PERF_COUNT_HW_INSTRUCTIONS);
@@ -300,33 +278,24 @@ void measureoverhead(uint32_t n, uint32_t iterations, bool verbose) {
   LinuxEvents<PERF_TYPE_HARDWARE> unified(evts);
   std::vector<unsigned long long> results; // tmp buffer
   std::vector<std::vector<unsigned long long> > allresults;
+  std::vector<double> timings;
+  std::vector<double> freqs;
   results.resize(evts.size());
 
   for (uint32_t i = 0; i < iterations; i++) {
+    auto start = std::chrono::steady_clock::now();
     unified.start();
+
     unified.end(results);
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> secs = end - start;
+    double time_in_s = secs.count();
+    timings.push_back(time_in_s);
+    freqs.push_back(results[0]/(1000000000*time_in_s));
     allresults.push_back(results);
   }
 
-  std::vector<unsigned long long> mins = compute_mins(allresults);
-  std::vector<double> avg = compute_averages(allresults);
-  printf("%-40s\t", "nothing");
-  if (verbose) {
-    printf("instructions per cycle %4.2f, cycles per 16-bit word:  %4.3f, "
-           "instructions per 16-bit word %4.3f \n",
-           double(mins[1]) / mins[0], double(mins[0]) / n, double(mins[1]) / n);
-    // first we display mins
-    printf("min: %8llu cycles, %8llu instructions, \t%8llu branch mis., %8llu "
-           "cache ref., %8llu cache mis.\n",
-           mins[0], mins[1], mins[2], mins[3], mins[4]);
-    printf("avg: %8.1f cycles, %8.1f instructions, \t%8.1f branch mis., %8.1f "
-           "cache ref., %8.1f cache mis.\n",
-           avg[0], avg[1], avg[2], avg[3], avg[4]);
-  } else {
-    printf(
-        "cycles per 16-bit word:  %4.3f; ref cycles per 16-bit word: %4.3f \n",
-        double(mins[0]) / n, double(mins[5]) / n);
-  }
+  printResults(verbose, n, m, timings, freqs, allresults);
 }
 
 static void print_usage(char *command) {
@@ -402,7 +371,7 @@ int main(int argc, char **argv) {
     printf("array size: %.3f MB\n", array_in_bytes / (1024 * 1024.));
   }
 
-  measureoverhead(n * m, iterations, verbose);
+  measureoverhead(n, m, iterations, verbose);
   int maxtrial = 3;
 #ifdef ALIGN
   std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
