@@ -36,6 +36,7 @@ enum {
   OPT_VERBOSE    = 1 << 0,
   OPT_TEST       = 1 << 1,
   OPT_COMPENSATE = 1 << 2,
+  OPT_TOUCH = 1 << 3,
 };
 
 // Function pointer definition.
@@ -198,15 +199,6 @@ public:
   }
 };
 
-// initialise one subarray of the vdata array
-template <class C>
-void init_vdata_subarray(C &vdata, std::mt19937 &gen)
-{
-  for (size_t k2 = 0; k2 < vdata.size(); k2++) {
-    vdata[k2] = gen() & 0xffff; // initialise to random integer
-  }
-}
-
 // initialise all subarrays of the vdata array
 template <class C>
 void init_vdata(C &vdata)
@@ -214,8 +206,26 @@ void init_vdata(C &vdata)
   std::mt19937 gen;
 
   for (size_t k = 0; k < vdata.size(); k++) {
-    init_vdata_subarray(vdata[k], gen);
+    for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
+      vdata[k][k2] = gen() & 0xffff; // initialise to random integer
+    }
   }
+}
+
+// Read all array entries and sum them up.  Discard the sum.
+// The purpose of this is to ensure that the array has been
+// recently accessed.
+template <class C>
+void touch(C &vdata)
+{
+  int sum;
+  volatile int total;
+
+  for (size_t k = 0; k < vdata.size(); k++) {
+    sum += vdata[k];
+  }
+
+  total = sum;
 }
 
 /**
@@ -225,7 +235,7 @@ void init_vdata(C &vdata)
  * @parem m          Number of arrays.
  * @param iterations Number of iterations.
  * @param fn         Target function pointer.
- * @param options      Command line options
+ * @param options    Command line options
  * @return           Returns true if the results are correct. Returns false if
  *the results
  *                   are either incorrect or the target function is not
@@ -287,6 +297,9 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     bench.begin();
     for (size_t k = 0; k < m; k++) {
+      if (options & OPT_TOUCH) {
+        touch(vdata[k]);
+      }
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
     bench.end();
@@ -320,6 +333,9 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     bench.begin();
     for (size_t k = 0; k < m; k++) {
+      if (options & OPT_TOUCH) {
+        touch(vdata[k]);
+      }
       ::memcpy(copybuf.data(),vdata[k].data(),vdata[k].size());
     }
     bench.end();
@@ -336,6 +352,11 @@ BenchmarkState *measureoverhead(C & vdata, uint32_t n, uint32_t m, uint32_t iter
 
   for (uint32_t i = 0; i < iterations; i++) {
     bench->begin();
+    for (size_t k = 0; k < m; k++) {
+      if (options & OPT_TOUCH) {
+        touch(vdata[k]);
+      }
+    }
     bench->end();
   }
 
@@ -350,6 +371,7 @@ static void print_usage(char *command) {
   printf("-m number of arrays\n");
   printf("-n number of 16-bit words per array\n");
   printf("-i number of iterations\n");
+  printf("-t load arrays into cache before benchmarking\n");
   printf("-v enable verbose (perf counter) output\n");
 }
 
@@ -360,10 +382,13 @@ int main(int argc, char **argv) {
   int options = OPT_TEST;
   int c;
 
-  while ((c = getopt(argc, argv, "cvhm:n:i:")) != -1) {
+  while ((c = getopt(argc, argv, "cvhm:n:i:t")) != -1) {
     switch (c) {
     case 'c':
       options |= OPT_COMPENSATE;
+      break;
+    case 't':
+      options |= OPT_TOUCH;
       break;
     case 'n':
       n = atoll(optarg);
