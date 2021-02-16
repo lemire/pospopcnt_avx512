@@ -50,6 +50,14 @@ static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_ty
 	count16avx512(flags, data, len);
 }
 
+// dummy for taking the overhead
+static void pospopcnt_dummy(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	(void)data;
+	(void)len;
+	(void)flags;
+}
+
 #define PPOPCNT_NUMBER_METHODS 5
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
   pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B, pospopcnt_count16avx512,
@@ -236,13 +244,10 @@ void touch(C &vdata)
  * @param iterations Number of iterations.
  * @param fn         Target function pointer.
  * @param options    Command line options
- * @return           Returns true if the results are correct. Returns false if
- *the results
- *                   are either incorrect or the target function is not
- *supported.
+ * @return           Benchmark results.
  */
 template <class C>
-bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+BenchmarkState benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
                    uint32_t iterations,
                    pospopcnt_u16_method_type fn, int options) {
 #ifdef ALIGN
@@ -254,7 +259,6 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
 
   init_vdata(vdata);
 
-  bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
   for (uint32_t i = 0; i < test_iterations; i++) {
     std::vector<std::vector<flags_type> > correctflags(m,
@@ -272,8 +276,8 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     for (size_t km = 0; km < m; ++km)
       for (size_t k = 0; k < 16; ++k)
         tot_obs += flags[km][k];
-    if (tot_obs == 0) { // when a method is not supported it returns all zero
-      return false;
+    if (tot_obs == 0 && options & OPT_TEST) { // when a method is not supported it returns all zero
+      printf("method not supported\n");
     }
     for (size_t km = 0; km < m; ++km) {
       for (size_t k = 0; k < 16; k++) {
@@ -284,9 +288,6 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
             print16(correctflags[km].data());
             printf("got      : ");
             print16(flags[km].data());
-            return false;
-          } else {
-            isok = false;
           }
         }
       }
@@ -307,7 +308,7 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
 
   bench.printResults(options & OPT_VERBOSE, n, m);
 
-  return isok;
+  return bench;
 }
 
 template <class C>
@@ -342,27 +343,6 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
   }
 
   bench.printResults(options & OPT_VERBOSE, n, m);
-}
-
-template <class C>
-BenchmarkState *measureoverhead(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, int options) {
-  BenchmarkState *bench = new BenchmarkState;
-
-  init_vdata(vdata);
-
-  for (uint32_t i = 0; i < iterations; i++) {
-    bench->begin();
-    for (size_t k = 0; k < m; k++) {
-      if (options & OPT_TOUCH) {
-        touch(vdata[k]);
-      }
-    }
-    bench->end();
-  }
-
-  bench->printResults(options & OPT_VERBOSE, n, m);
-
-  return bench;
 }
 
 static void print_usage(char *command) {
@@ -457,11 +437,8 @@ int main(int argc, char **argv) {
 #endif
 
   printf("%-40s\t", "overhead");
-  auto overhead = measureoverhead(vdata, n, m, iterations, options);
-  if (~options & OPT_COMPENSATE) {
-    delete overhead;
-    overhead = nullptr;
-  }
+  auto ohbench = benchmarkMany(vdata, nullptr, n, m, iterations, pospopcnt_dummy, options & ~OPT_TEST);
+  BenchmarkState *overhead = options & OPT_COMPENSATE ? &ohbench : nullptr;
 
   printf("%-40s\t", "memcpy");
   benchmarkCopy(vdata, overhead, n, m, iterations, options);
@@ -473,18 +450,13 @@ int main(int argc, char **argv) {
       printf("\n");
       printf("%-40s\t", pospopcnt_u16_method_names[k]);
       fflush(NULL);
-      bool isok = benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k], options);
-      if (isok == false) {
-        printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
-      }
+      benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k], options);
       if (options & OPT_VERBOSE)
         printf("\n");
     }
   }
   if (~options & OPT_VERBOSE)
     printf("Try -v to get more details.\n");
-
-  delete overhead;
 
   return EXIT_SUCCESS;
 }
