@@ -31,6 +31,14 @@ typedef uint32_t flags_type;
 #define memory_allocate(size) malloc(size)
 #endif
 
+// command line options
+enum {
+  OPT_VERBOSE    = 1 << 0,
+  OPT_TEST       = 1 << 1,
+  OPT_COMPENSATE = 1 << 2,
+  OPT_TOUCH = 1 << 3,
+};
+
 // Function pointer definition.
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
                                           flags_type *flags);
@@ -40,6 +48,14 @@ extern "C" void count16avx512(flags_type flags[16], const uint16_t *buf, size_t 
 static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 {
 	count16avx512(flags, data, len);
+}
+
+// dummy for taking the overhead
+static void pospopcnt_dummy(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	(void)data;
+	(void)len;
+	(void)flags;
 }
 
 #define PPOPCNT_NUMBER_METHODS 5
@@ -191,6 +207,35 @@ public:
   }
 };
 
+// initialise all subarrays of the vdata array
+template <class C>
+void init_vdata(C &vdata)
+{
+  std::mt19937 gen;
+
+  for (size_t k = 0; k < vdata.size(); k++) {
+    for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
+      vdata[k][k2] = gen() & 0xffff; // initialise to random integer
+    }
+  }
+}
+
+// Read all array entries and sum them up.  Discard the sum.
+// The purpose of this is to ensure that the array has been
+// recently accessed.
+template <class C>
+void touch(C &vdata)
+{
+  int sum;
+  volatile int total;
+
+  for (size_t k = 0; k < vdata.size(); k++) {
+    sum += vdata[k];
+  }
+
+  total = sum;
+}
+
 /**
  * @brief
  *
@@ -198,16 +243,13 @@ public:
  * @parem m          Number of arrays.
  * @param iterations Number of iterations.
  * @param fn         Target function pointer.
- * @param verbose    Flag enabling verbose output.
- * @return           Returns true if the results are correct. Returns false if
- *the results
- *                   are either incorrect or the target function is not
- *supported.
+ * @param options    Command line options
+ * @return           Benchmark results.
  */
 template <class C>
-bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
+BenchmarkState benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
                    uint32_t iterations,
-                   pospopcnt_u16_method_type fn, bool verbose, bool test) {
+                   pospopcnt_u16_method_type fn, int options) {
 #ifdef ALIGN
   for (auto &x : vdata) {
     assert(get_alignment(x.data()) == 64);
@@ -215,7 +257,8 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
 #endif
   BenchmarkState bench(overhead);
 
-  bool isok = true;
+  init_vdata(vdata);
+
   uint32_t test_iterations = 1; // we run one test iteration
   for (uint32_t i = 0; i < test_iterations; i++) {
     std::vector<std::vector<flags_type> > correctflags(m,
@@ -233,21 +276,18 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     for (size_t km = 0; km < m; ++km)
       for (size_t k = 0; k < 16; ++k)
         tot_obs += flags[km][k];
-    if (tot_obs == 0) { // when a method is not supported it returns all zero
-      return false;
+    if (tot_obs == 0 && options & OPT_TEST) { // when a method is not supported it returns all zero
+      printf("method not supported\n");
     }
     for (size_t km = 0; km < m; ++km) {
       for (size_t k = 0; k < 16; k++) {
         if (correctflags[km][k] != flags[km][k]) {
-          if (test) {
+          if (options & OPT_TEST) {
             printf("bug:\n");
             printf("expected : ");
             print16(correctflags[km].data());
             printf("got      : ");
             print16(flags[km].data());
-            return false;
-          } else {
-            isok = false;
           }
         }
       }
@@ -258,28 +298,34 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     bench.begin();
     for (size_t k = 0; k < m; k++) {
+      if (options & OPT_TOUCH) {
+        touch(vdata[k]);
+      }
       fn(vdata[k].data(), vdata[k].size(), flags[k].data());
     }
     bench.end();
   }
 
-  bench.printResults(verbose, n, m);
+  bench.printResults(options & OPT_VERBOSE, n, m);
 
-  return isok;
+  return bench;
 }
+
 template <class C>
 void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
-                    uint32_t iterations, bool verbose) {
+                    uint32_t iterations, int options) {
   size_t maxsize = 0;
 #ifdef ALIGN
-  for (auto &x : vdata) { 
+  for (auto &x : vdata) {
      if(maxsize < x.size()) maxsize = x.size();
      assert(get_alignment(x.data()) == 64);
   }
 #endif
-  for (auto &x : vdata) { 
+  for (auto &x : vdata) {
      if(maxsize < x.size()) maxsize = x.size();
   }
+
+  init_vdata(vdata);
 
   BenchmarkState bench(overhead);
   std::vector<uint16_t> copybuf(maxsize);
@@ -288,25 +334,15 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
     std::vector<std::vector<flags_type> > flags(m, std::vector<flags_type>(16));
     bench.begin();
     for (size_t k = 0; k < m; k++) {
-      ::memcpy(copybuf.data(),vdata[k].data(),vdata[k].size()); 
+      if (options & OPT_TOUCH) {
+        touch(vdata[k]);
+      }
+      ::memcpy(copybuf.data(),vdata[k].data(),vdata[k].size());
     }
     bench.end();
   }
 
-  bench.printResults(verbose, n, m);
-}
-
-BenchmarkState *measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
-  BenchmarkState *bench = new BenchmarkState;
-
-  for (uint32_t i = 0; i < iterations; i++) {
-    bench->begin();
-    bench->end();
-  }
-
-  bench->printResults(verbose, n, m);
-
-  return bench;
+  bench.printResults(options & OPT_VERBOSE, n, m);
 }
 
 static void print_usage(char *command) {
@@ -315,6 +351,7 @@ static void print_usage(char *command) {
   printf("-m number of arrays\n");
   printf("-n number of 16-bit words per array\n");
   printf("-i number of iterations\n");
+  printf("-t load arrays into cache before benchmarking\n");
   printf("-v enable verbose (perf counter) output\n");
 }
 
@@ -322,14 +359,16 @@ int main(int argc, char **argv) {
   size_t n = 10000000;
   size_t m = 1;
   size_t iterations = 0;
-  bool verbose = false;
-  bool compensate = false;
+  int options = OPT_TEST;
   int c;
 
-  while ((c = getopt(argc, argv, "cvhm:n:i:")) != -1) {
+  while ((c = getopt(argc, argv, "cvhm:n:i:t")) != -1) {
     switch (c) {
     case 'c':
-      compensate = true;
+      options |= OPT_COMPENSATE;
+      break;
+    case 't':
+      options |= OPT_TOUCH;
       break;
     case 'n':
       n = atoll(optarg);
@@ -338,7 +377,7 @@ int main(int argc, char **argv) {
       m = atoll(optarg);
       break;
     case 'v':
-      verbose = true;
+      options |= OPT_VERBOSE;
       break;
     case 'h':
       print_usage(argv[0]);
@@ -389,13 +428,6 @@ int main(int argc, char **argv) {
     printf("array size: %.3f MB\n", array_in_bytes / (1024 * 1024.));
   }
 
-  printf("%-40s\t", "overhead");
-  auto overhead = measureoverhead(n, m, iterations, verbose);
-  if (!compensate) {
-    delete overhead;
-    overhead = nullptr;
-  }
-
   int maxtrial = 3;
 #ifdef ALIGN
   std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
@@ -403,16 +435,13 @@ int main(int argc, char **argv) {
 #else
   std::vector<std::vector<uint16_t> > vdata(m, std::vector<uint16_t>(n));
 #endif
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, 0xFFFF);
-  for (size_t k = 0; k < vdata.size(); k++) {
-      for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
-        vdata[k][k2] = dis(gen); // random init.
-      }
-  }
+
+  printf("%-40s\t", "overhead");
+  auto ohbench = benchmarkMany(vdata, nullptr, n, m, iterations, pospopcnt_dummy, options & ~OPT_TEST);
+  BenchmarkState *overhead = options & OPT_COMPENSATE ? &ohbench : nullptr;
+
   printf("%-40s\t", "memcpy");
-  benchmarkCopy(vdata, overhead, n, m, iterations, verbose);
+  benchmarkCopy(vdata, overhead, n, m, iterations, options);
   printf("\n");
    
   for (int t = 0; t < maxtrial; t++) {
@@ -421,19 +450,13 @@ int main(int argc, char **argv) {
       printf("\n");
       printf("%-40s\t", pospopcnt_u16_method_names[k]);
       fflush(NULL);
-      bool isok = benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k],
-                                verbose, true);
-      if (isok == false) {
-        printf("Problem detected with %s.\n", pospopcnt_u16_method_names[k]);
-      }
-      if (verbose)
+      benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k], options);
+      if (options & OPT_VERBOSE)
         printf("\n");
     }
   }
-  if (!verbose)
+  if (~options & OPT_VERBOSE)
     printf("Try -v to get more details.\n");
-
-  delete overhead;
 
   return EXIT_SUCCESS;
 }
