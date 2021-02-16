@@ -267,6 +267,7 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
 
   return isok;
 }
+
 template <class C>
 void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
                     uint32_t iterations, bool verbose) {
@@ -403,12 +404,11 @@ int main(int argc, char **argv) {
 #else
   std::vector<std::vector<uint16_t> > vdata(m, std::vector<uint16_t>(n));
 #endif
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, 0xFFFF);
+
+  std::mt19937 gen; // use default seed for repeatability
   for (size_t k = 0; k < vdata.size(); k++) {
       for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
-        vdata[k][k2] = dis(gen); // random init.
+        vdata[k][k2] = gen() & 0xffff; // initialise to random integer
       }
   }
   printf("%-40s\t", "memcpy");
