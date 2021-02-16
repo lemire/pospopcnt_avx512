@@ -191,6 +191,26 @@ public:
   }
 };
 
+// initialise one subarray of the vdata array
+template <class C>
+void init_vdata_subarray(C &vdata, std::mt19937 &gen)
+{
+  for (size_t k2 = 0; k2 < vdata.size(); k2++) {
+    vdata[k2] = gen() & 0xffff; // initialise to random integer
+  }
+}
+
+// initialise all subarrays of the vdata array
+template <class C>
+void init_vdata(C &vdata)
+{
+  std::mt19937 gen;
+
+  for (size_t k = 0; k < vdata.size(); k++) {
+    init_vdata_subarray(vdata[k], gen);
+  }
+}
+
 /**
  * @brief
  *
@@ -214,6 +234,8 @@ bool benchmarkMany(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
   }
 #endif
   BenchmarkState bench(overhead);
+
+  init_vdata(vdata);
 
   bool isok = true;
   uint32_t test_iterations = 1; // we run one test iteration
@@ -282,6 +304,8 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
      if(maxsize < x.size()) maxsize = x.size();
   }
 
+  init_vdata(vdata);
+
   BenchmarkState bench(overhead);
   std::vector<uint16_t> copybuf(maxsize);
 
@@ -297,8 +321,11 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
   bench.printResults(verbose, n, m);
 }
 
-BenchmarkState *measureoverhead(uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
+template <class C>
+BenchmarkState *measureoverhead(C & vdata, uint32_t n, uint32_t m, uint32_t iterations, bool verbose) {
   BenchmarkState *bench = new BenchmarkState;
+
+  init_vdata(vdata);
 
   for (uint32_t i = 0; i < iterations; i++) {
     bench->begin();
@@ -390,13 +417,6 @@ int main(int argc, char **argv) {
     printf("array size: %.3f MB\n", array_in_bytes / (1024 * 1024.));
   }
 
-  printf("%-40s\t", "overhead");
-  auto overhead = measureoverhead(n, m, iterations, verbose);
-  if (!compensate) {
-    delete overhead;
-    overhead = nullptr;
-  }
-
   int maxtrial = 3;
 #ifdef ALIGN
   std::vector<std::vector<uint16_t, AlignedSTLAllocator<uint16_t, 64> > > vdata(
@@ -405,12 +425,13 @@ int main(int argc, char **argv) {
   std::vector<std::vector<uint16_t> > vdata(m, std::vector<uint16_t>(n));
 #endif
 
-  std::mt19937 gen; // use default seed for repeatability
-  for (size_t k = 0; k < vdata.size(); k++) {
-      for (size_t k2 = 0; k2 < vdata[k].size(); k2++) {
-        vdata[k][k2] = gen() & 0xffff; // initialise to random integer
-      }
+  printf("%-40s\t", "overhead");
+  auto overhead = measureoverhead(vdata, n, m, iterations, verbose);
+  if (!compensate) {
+    delete overhead;
+    overhead = nullptr;
   }
+
   printf("%-40s\t", "memcpy");
   benchmarkCopy(vdata, overhead, n, m, iterations, verbose);
   printf("\n");
