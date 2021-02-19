@@ -36,7 +36,8 @@ enum {
   OPT_VERBOSE    = 1 << 0,
   OPT_TEST       = 1 << 1,
   OPT_COMPENSATE = 1 << 2,
-  OPT_TOUCH = 1 << 3,
+  OPT_TOUCH      = 1 << 3,
+  OPT_FORCE      = 1 << 4,
 };
 
 // Function pointer definition.
@@ -348,6 +349,7 @@ void  benchmarkCopy(C & vdata, BenchmarkState *overhead, uint32_t n, uint32_t m,
 static void print_usage(char *command) {
   printf(" Try %s -n 100000 -i 15 -v\n", command);
   printf("-c compensate overhead in measurements\n");
+  printf("-f force use of suboptimal benchmark parameters\n");
   printf("-m number of arrays\n");
   printf("-n number of 16-bit words per array\n");
   printf("-i number of iterations\n");
@@ -362,10 +364,13 @@ int main(int argc, char **argv) {
   int options = OPT_TEST;
   int c;
 
-  while ((c = getopt(argc, argv, "cvhm:n:i:t")) != -1) {
+  while ((c = getopt(argc, argv, "cfi:hm:n:tv")) != -1) {
     switch (c) {
     case 'c':
       options |= OPT_COMPENSATE;
+      break;
+    case 'f':
+      options |= OPT_FORCE;
       break;
     case 't':
       options |= OPT_TOUCH;
@@ -402,16 +407,18 @@ int main(int argc, char **argv) {
   }
 
   if (iterations == 0) {
-      iterations = 100;
+    iterations = 100;
   }
+
   size_t min_volume = 1000000;
-  if(m * n < min_volume) {
+  if(~options & OPT_FORCE && m * n < min_volume) {
     printf("The benchmark is designed to measure the time in units of m*n inputs.\n");
     printf("But your choices make m*n too small, so increasing m.\n");
     while(m * n < min_volume) {
        m++;
     }
   }
+
   printf("n = %zu m = %zu \n", n, m);
   printf("iterations = %zu \n", iterations);
   if (n == 0) {

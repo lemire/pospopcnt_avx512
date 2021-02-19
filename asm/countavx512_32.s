@@ -113,22 +113,6 @@ countavx512:
         vpternlogd zmm2, zmm3, zmm4, 0x96
         vpternlogd zmm3, zmm7, zmm4, 0xE8
         add     rsi, 960
-        prefetcht0 [rsi+0xB40]
-        prefetcht0 [rsi+0xB80]
-        prefetcht0 [rsi+0xBC0]
-        prefetcht0 [rsi+0xC00]
-        prefetcht0 [rsi+0xC40]
-        prefetcht0 [rsi+0xC80]
-        prefetcht0 [rsi+0xCC0]
-        prefetcht0 [rsi+0xD00]
-        prefetcht0 [rsi+0xD40]
-        prefetcht0 [rsi+0xD80]
-        prefetcht0 [rsi+0xDC0]
-        prefetcht0 [rsi+0xE00]
-        prefetcht0 [rsi+0xE40]
-        prefetcht0 [rsi+0xE80]
-        prefetcht0 [rsi+0xEC0]
-        prefetcht0 [rsi+0xF00]
         vpsrld  zmm4, zmm0, 1
         vpaddd  zmm5, zmm1, zmm1
         vpsrld  zmm6, zmm2, 1
