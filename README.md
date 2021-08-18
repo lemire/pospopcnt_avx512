@@ -59,3 +59,7 @@ avg: 6661233.2 cycles, 5181931.2 instructions,     124.0 branch mis., 446684.9 c
 estimated clock in range 2.956 GHz to 3.148 GHz
 ```
 
+# Reference
+
+Marcus D. R. Klarqvist, Wojciech Muła, Daniel Lemire, [Efficient computation of positional population counts using SIMD instructions](https://arxiv.org/abs/1911.02696), 33 (17), 2021.
+
