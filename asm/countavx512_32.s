@@ -342,19 +342,19 @@ accum8:
 	.balign 16
 accum16:
 	.type   accum16, @function
-	vpmovzxwd zmm0, ymm8
-	vextracti64x4 ymm2, zmm8, 0x01
-	vpmovzxwd zmm2, ymm2
-	vpmovzxwd zmm4, ymm9
-	vextracti64x4 ymm6, zmm9, 0x01
-	vpmovzxwd zmm6, ymm6
-	vpaddd  zmm0, zmm0, zmm2
-	vpaddd  zmm4, zmm4, zmm6
-	vshufi64x2 zmm1, zmm0, zmm4, 0x44
-	vshufi64x2 zmm5, zmm0, zmm4, 0xEE
-	vpaddd  zmm1, zmm1, zmm5
-	vpaddd  zmm1, zmm1, [rdi]
-	vmovdqu64 [rdi], zmm1
+	vpmovzxwd zmm10, ymm8
+	vextracti64x4 ymm12, zmm8, 0x01
+	vpmovzxwd zmm12, ymm12
+	vpmovzxwd zmm14, ymm9
+	vextracti64x4 ymm16, zmm9, 0x01
+	vpmovzxwd zmm16, ymm16
+	vpaddd  zmm10, zmm10, zmm12
+	vpaddd  zmm14, zmm14, zmm16
+	vshufi64x2 zmm11, zmm10, zmm14, 0x44
+	vshufi64x2 zmm15, zmm10, zmm14, 0xEE
+	vpaddd  zmm11, zmm11, zmm15
+	vpaddd  zmm11, zmm11, [rdi]
+	vmovdqu64 [rdi], zmm11
 	ret
 
 # not ported to uint32_t flags yet
