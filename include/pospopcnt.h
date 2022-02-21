@@ -3,9 +3,7 @@
 
 #include <stdint.h>
 
-#if defined(__clang__)
-#pragma clang loop vectorize(disable)
-#elif defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 __attribute__((optimize("no-tree-vectorize")))
 #endif
 // given a stream of len 16-bit words (in data), generates
@@ -13,6 +11,9 @@ __attribute__((optimize("no-tree-vectorize")))
 // to the number of bit sets at the corresponding indexes (0,1,...,15).
 static void pospopcnt_u16_scalar(const uint16_t *data, uint32_t len,
                                  flags_type *flags) {
+#if defined(__clang__)
+#pragma clang loop vectorize(disable)
+#endif
   for (int i = 0; i < len; ++i) {
       uint64_t w = data[i];
       flags[0] += ((w >> 0) & 1);
