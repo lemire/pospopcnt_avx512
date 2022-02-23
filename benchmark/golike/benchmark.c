@@ -35,7 +35,7 @@ pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 	count16avx512(flags, data, len);
 }
 
-struct pospopcnt_u16_method {
+static struct pospopcnt_u16_method {
 	const char *name;
 	pospopcnt_u16 *method;
 } methods[] = {
@@ -143,7 +143,7 @@ run_test(const char *name, testfunc *test, void *payload, size_t n)
 				m *= 2;
 			else {
 				/* try to overshoot 1s time goal slightly */
-				newm = ceil(m * TIME_GOAL * 1.10 / elapsed);
+				newm = ceil(m * TIME_GOAL * 1.05 / elapsed);
 				m = newm > m ? newm : m + 1;
 			}
 
@@ -207,11 +207,21 @@ test_pospop_u16(struct counters *c, void *payload, size_t n, size_t m)
 extern int
 main(int argc, char *argv[])
 {
-	int i;
+	size_t n;
+	int i, j;
+	char *fake_argv[] = { argv[0], "100000", NULL };
 
 	setlinebuf(stdout);
 
-	for (i = 0; methods[i].method != NULL; i++) {
-		run_test(methods[i].name, test_pospop_u16, methods[i].method, 100000);
+	if (argc < 2) {
+		argv = fake_argv;
+		argc = 2;
+	}
+
+	for (j = 1; j < argc; j++) {
+		n = atoll(argv[j]);
+		for (i = 0; methods[i].method != NULL; i++) {
+			run_test(methods[i].name, test_pospop_u16, methods[i].method, n);
+		}
 	}
 }
