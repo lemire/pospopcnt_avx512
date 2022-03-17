@@ -15,22 +15,23 @@ itest: instrumented_benchmark
 DEPS=benchmark/linux/linux-perf-events.h \
     include/pospopcnt_avx512bw.h  \
     include/pospopcnt.h \
-    asm/countavx512_$(FLAGSIZE).s
+    asm/countavx512_$(FLAGSIZE).S \
+    asm/kernel.S
 
 stream_benchmark: $(DEPS)  benchmark/linux/stream_benchmark.cpp
 	$(CXX) $(CPPFLAGS) benchmark/linux/stream_benchmark.cpp -Iinclude -Ibenchmark/linux -o $@
 
 instrumented_benchmark: $(DEPS) benchmark/linux/instrumented_benchmark.cpp
-	$(CXX) $(CPPFLAGS) benchmark/linux/instrumented_benchmark.cpp asm/countavx512_$(FLAGSIZE).s -Iinclude -Ibenchmark/linux -o $@
+	$(CXX) $(CPPFLAGS) benchmark/linux/instrumented_benchmark.cpp asm/countavx512_$(FLAGSIZE).S -Iinclude -Ibenchmark/linux -o $@
 
 instrumented_benchmark_align64: $(DEPS)
-	$(CXX) $(CPPFLAGS) benchmark/linux/instrumented_benchmark.cpp asm/countavx512_$(FLAGSIZE).s -DALIGN -Iinclude -Ibenchmark/linux -o $@
+	$(CXX) $(CPPFLAGS) benchmark/linux/instrumented_benchmark.cpp asm/countavx512_$(FLAGSIZE).S -DALIGN -Iinclude -Ibenchmark/linux -o $@
 
 golike_benchmark: $(DEPS) benchmark/golike/benchmark.c
-	$(CC) $(CFLAGS) -Iinclude -o $@ benchmark/golike/benchmark.c asm/countavx512_$(FLAGSIZE).s
+	$(CC) $(CFLAGS) -Iinclude -o $@ benchmark/golike/benchmark.c asm/countavx512_$(FLAGSIZE).S
 
 golike_benchmark_align64: $(DEPS) benchmark/golike/benchmark.c
-	$(CC) $(CFLAGS) -Iinclude -DALIGN -o $@ benchmark/golike/benchmark.c asm/countavx512_$(FLAGSIZE).s
+	$(CC) $(CFLAGS) -Iinclude -DALIGN -o $@ benchmark/golike/benchmark.c asm/countavx512_$(FLAGSIZE).S
 
 clean:
 	rm -f bench example instrumented_benchmark golike_benchmark
