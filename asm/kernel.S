@@ -32,7 +32,7 @@ countavx512:
 	vpmovzxdq zmm1, ymm1
 	vpshufd zmm29, zmm1, 0xA0
 	cmp     rcx, 960
-	jl      .L20343
+	jl      .L72
 	mov     edx, esi
 	and     edx, 0x3F
 	mov     rax, -1
@@ -43,63 +43,63 @@ countavx512:
 	vmovdqu8 zmm0 {k1}{z}, [rsi]
 	vmovdqa64 zmm1, [rsi+0x1*0x40]
 	vmovdqa64 zmm4, [rsi+0x2*0x40]
+	vpxor   ymm8, ymm8, ymm8
+	vpxor   ymm9, ymm9, ymm9
 	vmovdqa64 zmm2, [rsi+0x3*0x40]
 	vmovdqa64 zmm3, [rsi+0x4*0x40]
 	vmovdqa64 zmm5, [rsi+0x5*0x40]
-	vmovdqa64 zmm6, [rsi+0x6*0x40]
-	vpxor   ymm8, ymm8, ymm8
-	vpxor   ymm9, ymm9, ymm9
-	vmovdqa64 zmm7, zmm0
+	vmovdqa64 zmm22, zmm0
 	vpternlogd zmm0, zmm1, zmm4, 0x96
-	vpternlogd zmm1, zmm7, zmm4, 0xE8
-	vmovdqa64 zmm4, [rsi+0x7*0x40]
-	vmovdqa64 zmm7, zmm3
-	vpternlogd zmm3, zmm2, zmm5, 0x96
-	vpternlogd zmm2, zmm7, zmm5, 0xE8
-	vmovdqa64 zmm5, [rsi+0x8*0x40]
-	vmovdqa64 zmm7, zmm0
-	vpternlogd zmm0, zmm3, zmm6, 0x96
-	vpternlogd zmm3, zmm7, zmm6, 0xE8
-	vmovdqa64 zmm6, [rsi+0x9*0x40]
-	vmovdqa64 zmm7, zmm1
-	vpternlogd zmm1, zmm2, zmm3, 0x96
-	vpternlogd zmm2, zmm7, zmm3, 0xE8
-	vmovdqa64 zmm3, [rsi+0xA*0x40]
-	vmovdqa64 zmm7, zmm0
-	vpternlogd zmm0, zmm4, zmm5, 0x96
-	vpternlogd zmm4, zmm7, zmm5, 0xE8
-	vmovdqa64 zmm5, [rsi+0xB*0x40]
-	vmovdqa64 zmm7, zmm0
-	vpternlogd zmm0, zmm3, zmm6, 0x96
-	vpternlogd zmm3, zmm7, zmm6, 0xE8
-	vmovdqa64 zmm6, [rsi+0xC*0x40]
-	vmovdqa64 zmm7, zmm1
-	vpternlogd zmm1, zmm3, zmm4, 0x96
-	vpternlogd zmm3, zmm7, zmm4, 0xE8
-	vmovdqa64 zmm4, [rsi+0xD*0x40]
-	vmovdqa64 zmm7, zmm0
-	vpternlogd zmm0, zmm5, zmm6, 0x96
-	vpternlogd zmm5, zmm7, zmm6, 0xE8
-	vmovdqa64 zmm6, [rsi+0xE*0x40]
+	vpternlogd zmm1, zmm22, zmm4, 0xE8
+	vmovdqa64 zmm6, [rsi+0x6*0x40]
+	vmovdqa64 zmm7, [rsi+0x7*0x40]
+	vmovdqa64 zmm10, [rsi+0x8*0x40]
+	vmovdqa64 zmm22, zmm2
+	vpternlogd zmm2, zmm3, zmm5, 0x96
+	vpternlogd zmm3, zmm22, zmm5, 0xE8
+	vmovdqa64 zmm11, [rsi+0x9*0x40]
+	vmovdqa64 zmm12, [rsi+0xA*0x40]
+	vmovdqa64 zmm13, [rsi+0xB*0x40]
+	vmovdqa64 zmm22, zmm6
+	vpternlogd zmm6, zmm7, zmm10, 0x96
+	vpternlogd zmm7, zmm22, zmm10, 0xE8
+	vmovdqa64 zmm4, [rsi+0xC*0x40]
+	vmovdqa64 zmm5, [rsi+0xD*0x40]
+	vmovdqa64 zmm10, [rsi+0xE*0x40]
+	vmovdqa64 zmm22, zmm11
+	vpternlogd zmm11, zmm12, zmm13, 0x96
+	vpternlogd zmm12, zmm22, zmm13, 0xE8
 	vpbroadcastd zmm28, [magic+16+rip]
 	vpbroadcastd zmm27, [magic+20+rip]
 	vpbroadcastd zmm26, [magic+24+rip]
-	vmovdqa64 zmm7, zmm0
-	vpternlogd zmm0, zmm4, zmm6, 0x96
-	vpternlogd zmm4, zmm7, zmm6, 0xE8
-	vmovdqa64 zmm7, zmm1
-	vpternlogd zmm1, zmm4, zmm5, 0x96
-	vpternlogd zmm4, zmm7, zmm5, 0xE8
-	vmovdqa64 zmm7, zmm2
-	vpternlogd zmm2, zmm3, zmm4, 0x96
-	vpternlogd zmm3, zmm7, zmm4, 0xE8
+	vmovdqa64 zmm22, zmm4
+	vpternlogd zmm4, zmm5, zmm10, 0x96
+	vpternlogd zmm5, zmm22, zmm10, 0xE8
+	vmovdqa64 zmm22, zmm0
+	vpternlogd zmm0, zmm2, zmm6, 0x96
+	vpternlogd zmm2, zmm22, zmm6, 0xE8
+	vmovdqa64 zmm22, zmm1
+	vpternlogd zmm1, zmm3, zmm7, 0x96
+	vpternlogd zmm3, zmm22, zmm7, 0xE8
+	vmovdqa64 zmm22, zmm0
+	vpternlogd zmm0, zmm11, zmm4, 0x96
+	vpternlogd zmm11, zmm22, zmm4, 0xE8
+	vmovdqa64 zmm22, zmm2
+	vpternlogd zmm2, zmm12, zmm5, 0x96
+	vpternlogd zmm12, zmm22, zmm5, 0xE8
+	vmovdqa64 zmm22, zmm1
+	vpternlogd zmm1, zmm2, zmm11, 0x96
+	vpternlogd zmm2, zmm22, zmm11, 0xE8
+	vmovdqa64 zmm22, zmm2
+	vpternlogd zmm2, zmm3, zmm12, 0x96
+	vpternlogd zmm3, zmm22, zmm12, 0xE8
 	add     rsi, 960
 	sub     rcx, 1984
-	jl      .L20339
+	jl      .L68
 	vpbroadcastd zmm24, [magic+28+rip]
 	vpmovzxbw zmm23, [magic+32+rip]
 	mov     eax, 65535
-.L20337:vmovdqa64 zmm4, [rsi]
+.L66:	vmovdqa64 zmm4, [rsi]
 	vmovdqa64 zmm5, [rsi+0x1*0x40]
 	vmovdqa64 zmm6, [rsi+0x2*0x40]
 	vmovdqa64 zmm7, [rsi+0x3*0x40]
@@ -131,15 +131,17 @@ countavx512:
 	vpternlogd zmm12, zmm15, zmm16, 0x96
 	vpternlogd zmm15, zmm22, zmm16, 0xE8
 	add     rsi, 1024
+	prefetcht0 [rsi]
 	vmovdqa64 zmm22, zmm0
 	vpternlogd zmm0, zmm5, zmm6, 0x96
 	vpternlogd zmm5, zmm22, zmm6, 0xE8
-	vmovdqa64 zmm22, zmm10
-	vpternlogd zmm10, zmm12, zmm14, 0x96
-	vpternlogd zmm12, zmm22, zmm14, 0xE8
+	prefetcht0 [rsi+0x40]
 	vmovdqa64 zmm22, zmm1
 	vpternlogd zmm1, zmm4, zmm7, 0x96
 	vpternlogd zmm4, zmm22, zmm7, 0xE8
+	vmovdqa64 zmm22, zmm10
+	vpternlogd zmm10, zmm12, zmm14, 0x96
+	vpternlogd zmm12, zmm22, zmm14, 0xE8
 	vmovdqa64 zmm22, zmm11
 	vpternlogd zmm11, zmm13, zmm15, 0x96
 	vpternlogd zmm13, zmm22, zmm15, 0xE8
@@ -184,20 +186,22 @@ countavx512:
 	vpandd  zmm5, zmm24, zmm4
 	vpandnd zmm6, zmm24, zmm4
 	vpsrld  zmm6, zmm6, 8
-	vpermw  zmm5, zmm23, zmm5
-	vpermw  zmm6, zmm23, zmm6
 	vpaddw  zmm8, zmm8, zmm5
 	vpaddw  zmm9, zmm9, zmm6
 	sub     eax, 128
 	cmp     eax, 368
-	jge     .L20338
+	jge     .L67
+	vpermw  zmm8, zmm23, zmm8
+	vpermw  zmm9, zmm23, zmm9
 	call    rbx
 	vpxor   ymm8, ymm8, ymm8
 	vpxor   ymm9, ymm9, ymm9
 	mov     eax, 65535
-.L20338:sub     rcx, 1024
-	jge     .L20337
-.L20339:vpsrld  zmm4, zmm0, 1
+.L67:	sub     rcx, 1024
+	jge     .L66
+	vpermw  zmm8, zmm23, zmm8
+	vpermw  zmm9, zmm23, zmm9
+.L68:	vpsrld  zmm4, zmm0, 1
 	vpaddd  zmm5, zmm1, zmm1
 	vpsrld  zmm6, zmm2, 1
 	vpaddd  zmm7, zmm3, zmm3
@@ -256,16 +260,16 @@ countavx512:
 	vpaddw  zmm9, zmm9, zmm2
 	vpxor   ymm0, ymm0, ymm0
 	sub     ecx, -1016
-	jl      .L20341
-.L20340:vpbroadcastq zmm4, [rsi]
+	jl      .L70
+.L69:	vpbroadcastq zmm4, [rsi]
 	add     rsi, 8
 	vpshufb zmm4, zmm4, zmm29
 	sub     ecx, 8
 	vptestmb k1, zmm4, zmm31
 	vpsubb  zmm0 {k1}, zmm0, zmm30
-	jg      .L20340
-.L20341:sub     ecx, -8
-	jle     .L20342
+	jg      .L69
+.L70:	sub     ecx, -8
+	jle     .L71
 	vpbroadcastq zmm4, [rsi]
 	vpshufb zmm4, zmm4, zmm29
 	xor     eax, eax
@@ -275,25 +279,24 @@ countavx512:
 	vmovdqa64 zmm4 {k1}{z}, zmm4
 	vptestmb k1, zmm4, zmm31
 	vpsubb  zmm0 {k1}, zmm0, zmm30
-.L20342:vpunpcklbw zmm1, zmm0, zmm25
+.L71:	vpunpcklbw zmm1, zmm0, zmm25
 	vpunpckhbw zmm2, zmm0, zmm25
 	vpaddw  zmm8, zmm8, zmm1
 	vpaddw  zmm9, zmm9, zmm2
 	call    rbx
 	vzeroupper
 	ret
-
-.L20343:vpxor   ymm0, ymm0, ymm0
+.L72:	vpxor   ymm0, ymm0, ymm0
 	sub     ecx, 8
-	jl      .L20345
-.L20344:vpbroadcastq zmm4, [rsi]
+	jl      .L74
+.L73:	vpbroadcastq zmm4, [rsi]
 	add     rsi, 8
 	vpshufb zmm4, zmm4, zmm29
 	sub     ecx, 8
 	vptestmb k1, zmm4, zmm31
 	vpsubb  zmm0 {k1}, zmm0, zmm30
-	jge     .L20344
-.L20345:add     ecx, 8
+	jge     .L73
+.L74:	add     ecx, 8
 	xor     eax, eax
 	bts     eax, ecx
 	dec     eax
