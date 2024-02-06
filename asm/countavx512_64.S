@@ -1,4 +1,4 @@
-#include "kernel.S"
+#include "kernelavx512.S"
 
 	.balign 16
 accum8:

@@ -16,7 +16,7 @@ DEPS=benchmark/linux/linux-perf-events.h \
     include/pospopcnt_avx512bw.h  \
     include/pospopcnt.h \
     asm/countavx512_$(FLAGSIZE).S \
-    asm/kernel.S
+    asm/kernelavx512.S
 
 stream_benchmark: $(DEPS)  benchmark/linux/stream_benchmark.cpp
 	$(CXX) $(CPPFLAGS) benchmark/linux/stream_benchmark.cpp -Iinclude -Ibenchmark/linux -o $@

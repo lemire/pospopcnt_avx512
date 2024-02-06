@@ -5,10 +5,8 @@
 
 	.intel_syntax noprefix
 	.section .rodata
-	.balign 32
-magic:	.quad 0x0706050403020100
-	.quad 0x8040201008040201
-	.long 0x55555555
+	.balign	32
+magic:	.long 0x55555555
 	.long 0x33333333
 	.long 0x0f0f0f0f
 	.long 0x00ff00ff
@@ -20,26 +18,20 @@ magic:	.quad 0x0706050403020100
 
 	.section .text
 	.type countavx512, @function
-	.balign 16
+	.balign	16
 countavx512:
-	vmovq   xmm1, [magic+rip]
-	vpbroadcastq zmm31, [magic+8+rip]
+	push    rbp
+	mov     rbp, rsp
 	vpternlogd zmm30, zmm30, zmm30, 0xFF
 	vpxord  ymm25, ymm25, ymm25
-	vpunpcklbw xmm1, xmm1, xmm1
-	vpermq  ymm1, ymm1, 0x50
-	vpunpcklwd ymm1, ymm1, ymm1
-	vpmovzxdq zmm1, ymm1
-	vpshufd zmm29, zmm1, 0xA0
 	cmp     rcx, 960
-	jl      .L72
-	mov     edx, esi
-	and     edx, 0x3F
+	jl      .L22072
 	mov     rax, -1
-	sub     rsi, rdx
-	add     rcx, rdx
-	shlx    rax, rax, rdx
+	shlx    rax, rax, rsi
 	kmovq   k1, rax
+	add     rcx, rsi
+	and     rsi, 0xFFFFFFFFFFFFFFC0
+	sub     rcx, rsi
 	vmovdqu8 zmm0 {k1}{z}, [rsi]
 	vmovdqa64 zmm1, [rsi+0x1*0x40]
 	vmovdqa64 zmm4, [rsi+0x2*0x40]
@@ -69,9 +61,9 @@ countavx512:
 	vmovdqa64 zmm22, zmm11
 	vpternlogd zmm11, zmm12, zmm13, 0x96
 	vpternlogd zmm12, zmm22, zmm13, 0xE8
-	vpbroadcastd zmm28, [magic+16+rip]
-	vpbroadcastd zmm27, [magic+20+rip]
-	vpbroadcastd zmm26, [magic+24+rip]
+	vpbroadcastd zmm28, [magic+rip]
+	vpbroadcastd zmm27, [magic+4+rip]
+	vpbroadcastd zmm26, [magic+8+rip]
 	vmovdqa64 zmm22, zmm4
 	vpternlogd zmm4, zmm5, zmm10, 0x96
 	vpternlogd zmm5, zmm22, zmm10, 0xE8
@@ -95,11 +87,12 @@ countavx512:
 	vpternlogd zmm3, zmm22, zmm12, 0xE8
 	add     rsi, 960
 	sub     rcx, 1984
-	jl      .L68
-	vpbroadcastd zmm24, [magic+28+rip]
-	vpmovzxbw zmm23, [magic+32+rip]
+	jl      .L22068
+	vpbroadcastd zmm24, [magic+12+rip]
+
+	vpmovzxbw zmm23, [magic+16+rip]
 	mov     eax, 65535
-.L66:	vmovdqa64 zmm4, [rsi]
+.L22066:vmovdqa64	zmm4, [rsi]
 	vmovdqa64 zmm5, [rsi+0x1*0x40]
 	vmovdqa64 zmm6, [rsi+0x2*0x40]
 	vmovdqa64 zmm7, [rsi+0x3*0x40]
@@ -183,25 +176,24 @@ countavx512:
 	vshufi64x2 zmm10, zmm5, zmm6, 0x88
 	vshufi64x2 zmm11, zmm5, zmm6, 0xDD
 	vpaddd  zmm4, zmm11, zmm10
+	vpsrlw  zmm6, zmm4, 8
 	vpandd  zmm5, zmm24, zmm4
-	vpandnd zmm6, zmm24, zmm4
-	vpsrld  zmm6, zmm6, 8
 	vpaddw  zmm8, zmm8, zmm5
 	vpaddw  zmm9, zmm9, zmm6
 	sub     eax, 128
 	cmp     eax, 368
-	jge     .L67
+	jge     .L22067
 	vpermw  zmm8, zmm23, zmm8
 	vpermw  zmm9, zmm23, zmm9
 	call    rbx
 	vpxor   ymm8, ymm8, ymm8
 	vpxor   ymm9, ymm9, ymm9
 	mov     eax, 65535
-.L67:	sub     rcx, 1024
-	jge     .L66
+.L22067:sub	rcx, 1024
+	jge     .L22066
 	vpermw  zmm8, zmm23, zmm8
 	vpermw  zmm9, zmm23, zmm9
-.L68:	vpsrld  zmm4, zmm0, 1
+.L22068:vpsrld	zmm4, zmm0, 1
 	vpaddd  zmm5, zmm1, zmm1
 	vpsrld  zmm6, zmm2, 1
 	vpaddd  zmm7, zmm3, zmm3
@@ -259,57 +251,63 @@ countavx512:
 	vpaddw  zmm8, zmm8, zmm1
 	vpaddw  zmm9, zmm9, zmm2
 	vpxor   ymm0, ymm0, ymm0
+	cmp     ecx, -1024
+	jz      .L22071
 	sub     ecx, -1016
-	jl      .L70
-.L69:	vpbroadcastq zmm4, [rsi]
+	jle     .L22070
+.L22069:kmovq	k1, [rsi]
 	add     rsi, 8
-	vpshufb zmm4, zmm4, zmm29
+	vpsubb  zmm0 {k1}, zmm0, zmm30
 	sub     ecx, 8
-	vptestmb k1, zmm4, zmm31
+	jg      .L22069
+.L22070:lea	ecx, [rcx*8+0x40]
+	bzhi    rax, [rsi], rcx
+	kmovq   k1, rax
 	vpsubb  zmm0 {k1}, zmm0, zmm30
-	jg      .L69
-.L70:	sub     ecx, -8
-	jle     .L71
-	vpbroadcastq zmm4, [rsi]
-	vpshufb zmm4, zmm4, zmm29
-	xor     eax, eax
-	bts     eax, ecx
-	dec     eax
-	kmovb   k1, eax
-	vmovdqa64 zmm4 {k1}{z}, zmm4
-	vptestmb k1, zmm4, zmm31
-	vpsubb  zmm0 {k1}, zmm0, zmm30
-.L71:	vpunpcklbw zmm1, zmm0, zmm25
+	vpunpcklbw zmm1, zmm0, zmm25
 	vpunpckhbw zmm2, zmm0, zmm25
 	vpaddw  zmm8, zmm8, zmm1
 	vpaddw  zmm9, zmm9, zmm2
-	call    rbx
+.L22071:call	rbx
 	vzeroupper
+	pop     rbp
 	ret
-.L72:	vpxor   ymm0, ymm0, ymm0
+
+.L22072:vpxor   ymm0, ymm0, ymm0
 	sub     ecx, 8
-	jl      .L74
-.L73:	vpbroadcastq zmm4, [rsi]
+	jle     .L22074
+.L22073:kmovq   k1, [rsi]
 	add     rsi, 8
-	vpshufb zmm4, zmm4, zmm29
-	sub     ecx, 8
-	vptestmb k1, zmm4, zmm31
 	vpsubb  zmm0 {k1}, zmm0, zmm30
-	jge     .L73
-.L74:	add     ecx, 8
-	xor     eax, eax
-	bts     eax, ecx
-	dec     eax
-	kmovd   k1, eax
-	vmovdqu8 xmm4 {k1}{z}, [rsi]
-	vpbroadcastq zmm4, xmm4
-	vpshufb zmm4, zmm4, zmm29
-	vptestmb k1, zmm4, zmm31
+	sub     rcx, 8
+	jg      .L22073
+	lea     edx, [rcx*8]
+	neg     edx
+	shrx    rax, [rsi+rcx], rdx
+	kmovq   k1, rax
 	vpsubb  zmm0 {k1}, zmm0, zmm30
 	vpunpcklbw zmm8, zmm0, zmm25
 	vpunpckhbw zmm9, zmm0, zmm25
 	call    rbx
 	vzeroupper
+	pop     rbp
+	ret
+
+.L22074:.type   .L22074, @function
+	add     ecx, 8
+	xor     eax, eax
+	bts     eax, ecx
+	dec     eax
+	kmovd   k1, eax
+	vmovdqu8 xmm4 {k1}{z}, [rsi]
+	vmovq   rax, xmm4
+	kmovq   k1, rax
+	vpsubb  zmm0 {k1}, zmm0, zmm30
+	vpunpcklbw zmm8, zmm0, zmm25
+	vpunpckhbw zmm9, zmm0, zmm25
+	call    rbx
+	vzeroupper
+	pop     rbp
 	ret
 
 	.balign 16

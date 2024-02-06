@@ -1,4 +1,4 @@
-#include "kernel.S"
+#include "kernelavx512.S"
 
 # not ported to uint32_t flags yet
 	.balign 16
