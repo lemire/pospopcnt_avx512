@@ -33,11 +33,18 @@ typedef uint32_t flags_type;
 #include "pospopcnt.h"
 
 typedef void pospopcnt_u16(const uint16_t *data, uint32_t len, flags_type *flags);
+extern void count16avx2(flags_type *flags, const uint16_t *data, uint32_t len);
 extern void count16avx512(flags_type *flags, const uint16_t *data, uint32_t len);
 static void
 pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 {
 	count16avx512(flags, data, len);
+}
+
+static void
+pospopcnt_count16avx2(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	count16avx2(flags, data, len);
 }
 
 static const struct pospopcnt_u16_method {
@@ -49,6 +56,7 @@ static const struct pospopcnt_u16_method {
 	{ "avx512bw_harvey_seal_512B", pospopcnt_u16_avx512bw_harvey_seal_512B },
 	{ "avx512bw_harvey_seal_256B", pospopcnt_u16_avx512bw_harvey_seal_256B },
 	{ "count16avx512", pospopcnt_count16avx512 },
+	{ "count16avx2", pospopcnt_count16avx2 },
 	{ NULL, NULL },
 };
 

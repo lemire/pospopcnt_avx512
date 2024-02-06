@@ -45,10 +45,16 @@ typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
                                           flags_type *flags);
 
 extern "C" void count16avx512(flags_type flags[16], const uint16_t *buf, size_t len);
+extern "C" void count16avx2(flags_type flags[16], const uint16_t *buf, size_t len);
 
 static void pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 {
 	count16avx512(flags, data, len);
+}
+
+static void pospopcnt_count16avx2(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	count16avx2(flags, data, len);
 }
 
 // dummy for taking the overhead
@@ -59,13 +65,23 @@ static void pospopcnt_dummy(const uint16_t *data, uint32_t len, flags_type *flag
 	(void)flags;
 }
 
-#define PPOPCNT_NUMBER_METHODS 5
+#define PPOPCNT_NUMBER_METHODS 6
 pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
-  pospopcnt_u16_scalar, pospopcnt_u16_avx512bw_harvey_seal_1KB, pospopcnt_u16_avx512bw_harvey_seal_512B, pospopcnt_u16_avx512bw_harvey_seal_256B, pospopcnt_count16avx512,
+  pospopcnt_u16_scalar,
+  pospopcnt_u16_avx512bw_harvey_seal_1KB,
+  pospopcnt_u16_avx512bw_harvey_seal_512B,
+  pospopcnt_u16_avx512bw_harvey_seal_256B,
+  pospopcnt_count16avx512,
+  pospopcnt_count16avx2,
 };
 
 static const char *const pospopcnt_u16_method_names[] = {
-  "pospopcnt_u16_scalar", "pospopcnt_u16_avx512bw_harvey_seal_1KB", "pospopcnt_u16_avx512bw_harvey_seal_512B", "pospopcnt_u16_avx512bw_harvey_seal_256B", "pospopcnt_count16avx512",
+  "pospopcnt_u16_scalar",
+  "pospopcnt_u16_avx512bw_harvey_seal_1KB",
+  "pospopcnt_u16_avx512bw_harvey_seal_512B",
+  "pospopcnt_u16_avx512bw_harvey_seal_256B",
+  "pospopcnt_count16avx512",
+  "pospopcnt_count16avx2",
 };
 
 void print16(flags_type *flags) {
