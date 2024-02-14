@@ -174,7 +174,7 @@ counterdiff(uint64_t out[EVENT_COUNT], uint64_t start[], uint64_t end[])
 {
 	int i, j;
 
-	for (i, j = 0; i < EVENT_COUNT; i++) {
+	for (i = 0, j = 0; i < EVENT_COUNT; i++) {
 		if (events[i].fd == -1)
 			out[i] = 0;
 		else {
@@ -270,7 +270,6 @@ run_test(const char *name, testfunc *test, void *payload, size_t n)
 }
 
 /* test positiona population count function payload with an n byte array */
-typedef int testfunc(struct counters *c, void *payload, size_t n, size_t m);
 static int
 test_pospop_u16(struct counters *c, void *payload, size_t n, size_t m)
 {
