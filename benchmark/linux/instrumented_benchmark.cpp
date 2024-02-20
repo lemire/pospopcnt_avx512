@@ -22,7 +22,9 @@ typedef uint32_t flags_type;
 
 #include "linux-perf-events.h"
 #include "aligned_alloc.h"
+#ifdef __x86_64__
 #include "pospopcnt_avx512bw.h"
+#endif
 #include "pospopcnt.h"
 #ifdef ALIGN
 #include "memalloc.h"
@@ -44,6 +46,7 @@ enum {
 typedef void (*pospopcnt_u16_method_type)(const uint16_t *data, uint32_t len,
                                           flags_type *flags);
 
+#ifdef __x86_64__
 extern "C" void count16avx512(flags_type flags[16], const uint16_t *buf, size_t len);
 extern "C" void count16avx2(flags_type flags[16], const uint16_t *buf, size_t len);
 
@@ -56,6 +59,16 @@ static void pospopcnt_count16avx2(const uint16_t *data, uint32_t len, flags_type
 {
 	count16avx2(flags, data, len);
 }
+#endif
+
+#ifdef __aarch64__
+extern "C" void count16neon(flags_type flags[16], const uint16_t *buf, size_t len);
+
+static void pospopcnt_count16neon(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	count16neon(flags, data, len);
+}
+#endif
 
 // dummy for taking the overhead
 static void pospopcnt_dummy(const uint16_t *data, uint32_t len, flags_type *flags)
@@ -65,23 +78,22 @@ static void pospopcnt_dummy(const uint16_t *data, uint32_t len, flags_type *flag
 	(void)flags;
 }
 
-#define PPOPCNT_NUMBER_METHODS 6
-pospopcnt_u16_method_type pospopcnt_u16_methods[] = {
-  pospopcnt_u16_scalar,
-  pospopcnt_u16_avx512bw_harvey_seal_1KB,
-  pospopcnt_u16_avx512bw_harvey_seal_512B,
-  pospopcnt_u16_avx512bw_harvey_seal_256B,
-  pospopcnt_count16avx512,
-  pospopcnt_count16avx2,
-};
-
-static const char *const pospopcnt_u16_method_names[] = {
-  "pospopcnt_u16_scalar",
-  "pospopcnt_u16_avx512bw_harvey_seal_1KB",
-  "pospopcnt_u16_avx512bw_harvey_seal_512B",
-  "pospopcnt_u16_avx512bw_harvey_seal_256B",
-  "pospopcnt_count16avx512",
-  "pospopcnt_count16avx2",
+static const struct {
+  pospopcnt_u16_method_type method;
+  const char *name;
+} methods[] = {
+  { pospopcnt_u16_scalar, "pospopcnt_u16_scalar" },
+#ifdef __x86_64__
+  { pospopcnt_u16_avx512bw_harvey_seal_1KB, "pospopcnt_u16_avx512bw_harvey_seal_1KB" },
+  { pospopcnt_u16_avx512bw_harvey_seal_512B, "pospopcnt_u16_avx512bw_harvey_seal_512B" },
+  { pospopcnt_u16_avx512bw_harvey_seal_256B, "pospopcnt_u16_avx512bw_harvey_seal_256B" },
+  { pospopcnt_count16avx512, "pospopcnt_count16avx512" },
+  { pospopcnt_count16avx2, "pospopcnt_count16avx2" },
+#endif
+#ifdef __aarch64__
+  { pospopcnt_count16neon, "pospopcnt_count16neon" },
+#endif
+  { NULL, NULL },
 };
 
 void print16(flags_type *flags) {
@@ -469,11 +481,11 @@ int main(int argc, char **argv) {
    
   for (int t = 0; t < maxtrial; t++) {
     printf("\n== Trial %d out of %d \n", t + 1, maxtrial);
-    for (size_t k = 0; k < PPOPCNT_NUMBER_METHODS; k++) {
+    for (size_t k = 0; methods[k].name != NULL; k++) {
       printf("\n");
-      printf("%-40s\t", pospopcnt_u16_method_names[k]);
+      printf("%-40s\t", methods[k].name);
       fflush(NULL);
-      benchmarkMany(vdata, overhead, n, m, iterations, pospopcnt_u16_methods[k], options);
+      benchmarkMany(vdata, overhead, n, m, iterations, methods[k].method, options);
       if (options & OPT_VERBOSE)
         printf("\n");
     }

@@ -29,12 +29,15 @@ typedef uint32_t flags_type;
 #define memory_allocate(size) malloc(size)
 #endif
 
+#ifdef __x86_64__
 #include "pospopcnt_avx512bw.h"
+#endif
 #include "pospopcnt.h"
 
 typedef void pospopcnt_u16(const uint16_t *data, uint32_t len, flags_type *flags);
-extern void count16avx2(flags_type *flags, const uint16_t *data, uint32_t len);
+#ifdef __x86_64__
 extern void count16avx512(flags_type *flags, const uint16_t *data, uint32_t len);
+extern void count16avx2(flags_type *flags, const uint16_t *data, uint32_t len);
 static void
 pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 {
@@ -46,17 +49,32 @@ pospopcnt_count16avx2(const uint16_t *data, uint32_t len, flags_type *flags)
 {
 	count16avx2(flags, data, len);
 }
+#endif
+
+#ifdef __aarch64__
+extern void count16neon(flags_type *flags, const uint16_t *data, uint32_t len);
+static void
+pospopcnt_count16neon(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	count16neon(flags, data, len);
+}
+#endif
 
 static const struct pospopcnt_u16_method {
-	const char *name;
-	pospopcnt_u16 *method;
+	const char *const name;
+	pospopcnt_u16 *const method;
 } methods[] = {
 	{ "scalar", pospopcnt_u16_scalar },
+#ifdef __x86_64__
 	{ "avx512bw_harvey_seal_1KB", pospopcnt_u16_avx512bw_harvey_seal_1KB },
 	{ "avx512bw_harvey_seal_512B", pospopcnt_u16_avx512bw_harvey_seal_512B },
 	{ "avx512bw_harvey_seal_256B", pospopcnt_u16_avx512bw_harvey_seal_256B },
 	{ "count16avx512", pospopcnt_count16avx512 },
 	{ "count16avx2", pospopcnt_count16avx2 },
+#endif
+#ifdef __aarch64__
+	{ "count16neon", pospopcnt_count16neon },
+#endif
 	{ NULL, NULL },
 };
 
@@ -230,6 +248,7 @@ run_test(const char *name, testfunc *test, void *payload, size_t n)
 		}
 
 		elapsed = tsdiff(start.ts, end.ts);
+//		printf("m = %zu, elapsed = %f s\n", m, elapsed);
 		if (elapsed < TIME_GOAL) {
 			if (elapsed < TIME_GOAL * 0.5)
 				m *= 2;
