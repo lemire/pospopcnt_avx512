@@ -176,10 +176,12 @@ countneon:
 	movi	v14.16b, #0x0
 	movi	v15.16b, #0x0
 	mov	x6, #65535
+
+.Lhave_space:
 	subs	x3, x3, #0x100
 	bge	.Lvec
 
-	ushr	v4.16b, v0.16b, #1
+.Lpost:	ushr	v4.16b, v0.16b, #1
 	add	v5.16b, v1.16b, v1.16b
 	ushr	v6.16b, v2.16b, #1
 	add	v7.16b, v3.16b, v3.16b
@@ -273,7 +275,8 @@ countneon:
 	cmtst	v5.16b, v5.16b, v28.16b
 	sub	v2.16b, v2.16b, v4.16b
 	sub	v3.16b, v3.16b, v5.16b
-	uaddw	v9.8h, v9.8h, v0.8b
+
+.Lend:	uaddw	v9.8h, v9.8h, v0.8b
 	uaddw2	v8.8h, v8.8h, v0.16b
 	uaddw	v11.8h, v11.8h, v1.8b
 	uaddw2	v10.8h, v10.8h, v1.16b
@@ -307,6 +310,7 @@ countneon:
 	sub	v14.16b, v14.16b, v5.16b
 	bge	.Lrunt8
 
+.Lrunt1:
 	adds	x3, x3, #0x8
 	ble	.Lrunt_accum
 
@@ -343,6 +347,8 @@ countneon:
 	cmtst	v5.16b, v5.16b, v28.16b
 	sub	v12.16b, v12.16b, v4.16b
 	sub	v14.16b, v14.16b, v5.16b
+
+.Lrunt_accum:
 	uxtl	v9.8h, v8.8b
 	uxtl2	v8.8h, v8.16b
 	uxtl	v11.8h, v10.8b
@@ -355,46 +361,70 @@ countneon:
 	ldr	x30, [sp], #16
 	ret
 
-	// calling convention for these:
-	// extern void count16avx2(flags_type *flags, const uint16_t *data, uint32_t len);
 	.globl	count8neon
 	.type	count8neon, %function
 	// extern void count8neon(flags_type *flags, const uint16_t *data, uint32_t len);
 count8neon:
-	str	x30, [sp, #-16]!
-	mov	x3, x2
+	sub	x3, sp, #4*16
+	str	x30, [sp, #-5*16]!
+	st1	{v8.1d-v11.1d}, [x3], #32
+	st1	{v12.1d-v15.1d}, [x3], #32
+	mov	w3, w2
 	mov	x2, x0
 	adr	x0, accum8
 	bl	countneon
 	ldr	x30, [sp], #16
+	ld1	{v8.1d-v11.1d}, [sp], #32
+	ld1	{v12.1d-v15.1d}, [sp], #32
 	ret
 
+	.globl	count16neon
+	.type	count16neon, %function
 	// extern void count16neon(flags_type *flags, const uint16_t *data, uint32_t len);
 count16neon:
-	str	x30, [sp, #-16]!
-	lsl	x3, x2, #1
+	sub	x3, sp, #4*16
+	str	x30, [sp, #-5*16]!
+	st1	{v8.1d-v11.1d}, [x3], #32
+	st1	{v12.1d-v15.1d}, [x3], #32
+	ubfiz	x3, x2, #1, #32
 	mov	x2, x0
 	adr	x0, accum16
 	bl	countneon
 	ldr	x30, [sp], #16
+	ld1	{v8.1d-v11.1d}, [sp], #32
+	ld1	{v12.1d-v15.1d}, [sp], #32
 	ret
 
+	.globl	count32neon
+	.type	count32neon, %function
 	// extern void count32neon(flags_type *flags, const uint16_t *data, uint32_t len);
 count32neon:
-	str	x30, [sp, #-16]!
-	lsl	x3, x2, #2
+	sub	x3, sp, #4*16
+	str	x30, [sp, #-5*16]!
+	st1	{v8.1d-v11.1d}, [x3], #32
+	st1	{v12.1d-v15.1d}, [x3], #32
+	ubfiz	x3, x2, #2, #32
 	mov	x2, x0
 	adr	x0, accum32
 	bl	countneon
 	ldr	x30, [sp], #16
+	ld1	{v8.1d-v11.1d}, [sp], #32
+	ld1	{v12.1d-v15.1d}, [sp], #32
 	ret
 
+	.globl	count64neon
+	.type	count64neon, %function
 	// extern void count64neon(flags_type *flags, const uint16_t *data, uint32_t len);
 count64neon:
-	str	x30, [sp, #-16]!
-	lsl	x3, x2, #3
+	sub	x3, sp, #4*16
+	str	x30, [sp, #-5*16]!
+	st1	{v8.1d-v11.1d}, [x3], #32
+	st1	{v12.1d-v15.1d}, [x3], #32
+	ubfiz	x3, x2, #3, #32
 	mov	x2, x0
 	adr	x0, accum64
 	bl	countneon
 	ldr	x30, [sp], #16
+	ld1	{v8.1d-v11.1d}, [sp], #32
+	ld1	{v12.1d-v15.1d}, [sp], #32
 	ret
