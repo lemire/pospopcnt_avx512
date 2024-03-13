@@ -35,9 +35,27 @@ typedef uint32_t flags_type;
 #include "pospopcnt.h"
 
 typedef void pospopcnt_u16(const uint16_t *data, uint32_t len, flags_type *flags);
+static pospopcnt_u16 pospopcnt_u16_dummy;
+
+/* a "do nothing" implementation to measure the memory overhead */
+static void pospopcnt_u16_dummy(const uint16_t *data, uint32_t len, flags_type *flags)
+{
+	volatile uint16_t sink;
+	uint16_t sum = 0;
+
+	for (uint32_t i = 0; i < len; i++)
+		sum += data[i];
+
+	sink = sum;
+
+	for (uint32_t i = 0; i < 16; i++)
+		flags[i] += sum;
+}
+
 #ifdef __x86_64__
 extern void count16avx512(flags_type *flags, const uint16_t *data, uint32_t len);
 extern void count16avx2(flags_type *flags, const uint16_t *data, uint32_t len);
+
 static void
 pospopcnt_count16avx512(const uint16_t *data, uint32_t len, flags_type *flags)
 {
@@ -64,6 +82,7 @@ static const struct pospopcnt_u16_method {
 	const char *const name;
 	pospopcnt_u16 *const method;
 } methods[] = {
+	{ "overhead", pospopcnt_u16_dummy },
 	{ "scalar", pospopcnt_u16_scalar },
 #ifdef __x86_64__
 	{ "avx512bw_harvey_seal_1KB", pospopcnt_u16_avx512bw_harvey_seal_1KB },
