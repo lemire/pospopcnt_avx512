@@ -162,8 +162,8 @@ countneon:
 	uaddw2	v13.8h, v13.8h, v18.16b
 	uaddw	v14.8h, v14.8h, v19.8b
 	uaddw2	v15.8h, v15.8h, v19.16b
-	sub	x6, x6, #0x1e
-	cmp	x6, #0x5c
+	sub	x6, x6, #0x20
+	cmp	x6, #0x3c
 	bge	.Lhave_space
 
 	blr	x0

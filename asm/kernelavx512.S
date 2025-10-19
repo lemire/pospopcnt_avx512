@@ -181,7 +181,7 @@ countavx512:
 	vpaddw  zmm8, zmm8, zmm5
 	vpaddw  zmm9, zmm9, zmm6
 	sub     eax, 128
-	cmp     eax, 368
+	cmp     eax, 240
 	jge     .L22067
 	vpermw  zmm8, zmm23, zmm8
 	vpermw  zmm9, zmm23, zmm9

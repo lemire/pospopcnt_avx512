@@ -248,7 +248,7 @@ countavx2:
 	vpaddw  ymm9, ymm9, ymm4
 	vpaddw  ymm11, ymm11, ymm5
 	sub     eax, 64
-	cmp     eax, 184
+	cmp     eax, 120
 	jge     .L22051
 	vpxor   ymm7, ymm7, ymm7
 	call    rbx
